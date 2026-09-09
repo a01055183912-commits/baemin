@@ -1520,14 +1520,40 @@ function PrePostChecklist({ onNeedRewrite }) {
 }
 
 /* ============================================================
+ * 마스코트 — 배민st 오리지널 캐릭터 (실제 배민 마스코트를 복제하지 않은
+ * 자체 제작 일러스트: 민트색 배달가방 몸통 + 헬멧 모양 머리)
+ * ============================================================ */
+
+function Mascot({ size = 128 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 200 200" role="img" aria-label="우리 가게 요청 문장 도우미 캐릭터" className="mascot-svg">
+      <ellipse cx="100" cy="178" rx="52" ry="10" fill="#0F6B67" opacity="0.15" />
+      <rect x="66" y="96" width="68" height="72" rx="26" fill="#04302E" />
+      <rect x="70" y="100" width="60" height="64" rx="22" fill="#2AC1BC" stroke="#1A1A1A" strokeWidth="4" />
+      <rect x="86" y="86" width="28" height="24" rx="8" fill="#2AC1BC" stroke="#1A1A1A" strokeWidth="4" />
+      <circle cx="100" cy="128" r="40" fill="#EFFFFE" stroke="#1A1A1A" strokeWidth="4" />
+      <circle cx="86" cy="126" r="7" fill="#1A1A1A" />
+      <circle cx="114" cy="126" r="7" fill="#1A1A1A" />
+      <path d="M84 144 Q100 156 116 144" stroke="#1A1A1A" strokeWidth="5" fill="none" strokeLinecap="round" />
+      <rect x="60" y="118" width="14" height="34" rx="7" fill="#2AC1BC" stroke="#1A1A1A" strokeWidth="4" />
+      <rect x="126" y="118" width="14" height="34" rx="7" fill="#2AC1BC" stroke="#1A1A1A" strokeWidth="4" />
+      <g transform="translate(140,60)">
+        <path d="M0 18 Q0 0 18 0 L40 0 Q58 0 58 18 L58 30 Q58 48 40 48 L22 48 L6 60 L10 44 Q0 40 0 30 Z" fill="#FFFFFF" stroke="#1A1A1A" strokeWidth="4" />
+        <text x="29" y="32" textAnchor="middle" fontSize="22" fontWeight="800" fill="#2AC1BC" fontFamily="inherit">글</text>
+      </g>
+    </svg>
+  )
+}
+
+/* ============================================================
  * App — 화면 이동, 상태, 요청 기록
  * ============================================================ */
 
 const SCREENS = [
-  { key: 'profile', label: '1. 소개서' },
-  { key: 'task', label: '2. 이번에 쓸 글' },
-  { key: 'preview', label: '3. 부탁할 문장' },
-  { key: 'rewrite', label: '4. 받은 글 고치기' },
+  { key: 'profile', label: '소개서', num: 1 },
+  { key: 'task', label: '이번에 쓸 글', num: 2 },
+  { key: 'preview', label: 'AI에게 부탁할 문장', num: 3 },
+  { key: 'rewrite', label: '받은 글 고치기', num: 4 },
 ]
 
 function App() {
@@ -1578,65 +1604,76 @@ function App() {
 
   const stat = validateProfile(profile)
 
+  const currentScreen = SCREENS.find((s) => s.key === screen)
+
   return (
-    <div className="app-shell">
-      <header className="app-header">
-        <h1>AI로 만드는 우리 가게 홍보 글쓰기</h1>
-        <p className="app-subtitle">우리 가게 요청 문장 도우미</p>
-        <p className="app-desc">사장님이 직접 입력한 사실로, AI에게 부탁할 요청 문장을 바로 만들어드려요. 최종 홍보 글은 이 앱이 아니라 사장님이 쓰시는 ChatGPT나 Claude가 씁니다.</p>
-      </header>
+    <div className="page-canvas">
+      <div className="stage">
+        <aside className="brand-pane">
+          <div className="brand-top">
+            <Mascot size={104} />
+            <h1>AI로 만드는<br />우리 가게 홍보 글쓰기</h1>
+            <p className="app-subtitle">우리 가게 요청 문장 도우미</p>
+          </div>
 
-      <nav className="tab-nav">
-        {SCREENS.map((s) => (
-          <button
-            key={s.key}
-            className={`tab ${screen === s.key ? 'tab-active' : ''}`}
-            onClick={() => setScreen(s.key)}
-            disabled={s.key === 'preview' && !validateTask(profile, task).valid}
-          >
-            {s.label}
-          </button>
-        ))}
-      </nav>
+          <nav className="step-nav">
+            {SCREENS.map((s) => (
+              <button
+                key={s.key}
+                className={`step-item ${screen === s.key ? 'step-active' : ''}`}
+                onClick={() => setScreen(s.key)}
+                disabled={s.key === 'preview' && !validateTask(profile, task).valid}
+              >
+                <span className="step-num">{s.num}</span>
+                <span className="step-label">{s.label}</span>
+              </button>
+            ))}
+          </nav>
 
-      <p className="notice">
-        새로고침하거나 이 창을 닫으면 입력한 내용이 모두 사라져요. 저장하려면 소개서 화면 하단의 "소개서 파일로 받기"를 이용하세요.
-        입력 내용은 이 기기 밖으로 전송되지 않지만, 완성된 문장을 다른 AI 서비스에 붙여 넣으면 그 서비스로 내용이 전달돼요. 손님·직원·계좌 정보는 넣지 마세요.
-      </p>
+          <div className="brand-bottom">
+            <p className="app-desc">사장님이 직접 입력한 사실로 AI에게 부탁할 요청 문장을 만들어요. 최종 홍보 글은 사장님이 쓰시는 ChatGPT나 Claude가 씁니다.</p>
+            <p className="brand-progress">소개서 {stat.totalCount}/{stat.totalFields}칸 입력됨</p>
+          </div>
+        </aside>
 
-      <main className="app-main">
-        {screen === 'profile' && (
-          <StoreProfile profile={profile} setProfile={setProfile} onGoNext={() => setScreen('task')} />
-        )}
-        {screen === 'task' && (
-          <RequestBuilder
-            profile={profile}
-            task={task}
-            setTask={setTask}
-            onGoPreview={() => setScreen('preview')}
-            onApplyTemplate={applyTemplate}
-            templatesOpen={templatesOpen}
-            setTemplatesOpen={setTemplatesOpen}
-          />
-        )}
-        {screen === 'preview' && (
-          <RequestPreview
-            profile={profile}
-            task={task}
-            history={history}
-            onSaveHistory={addHistory}
-            onBack={() => setScreen('task')}
-            onGoRewrite={() => setScreen('rewrite')}
-          />
-        )}
-        {screen === 'rewrite' && (
-          <RewriteBuilder profile={profile} task={task} onBack={() => setScreen('task')} />
-        )}
-      </main>
+        <div className="content-pane">
+          <p className="step-breadcrumb">STEP {currentScreen.num} · {currentScreen.label}</p>
+          <p className="notice">
+            새로고침하거나 창을 닫으면 입력이 모두 사라져요. 저장하려면 소개서 화면의 "소개서 파일로 받기"를 이용하세요.
+            입력 내용은 기기 밖으로 전송되지 않지만, 완성된 문장을 다른 AI 서비스에 붙여 넣으면 그 서비스로 내용이 전달돼요. 손님·직원·계좌 정보는 넣지 마세요.
+          </p>
 
-      <footer className="app-footer">
-        <p>소개서 {stat.totalCount}/{stat.totalFields}칸 입력됨 · 이 도구는 요청 문장만 만들며 홍보 글을 직접 작성하지 않아요.</p>
-      </footer>
+          <main className="app-main">
+            {screen === 'profile' && (
+              <StoreProfile profile={profile} setProfile={setProfile} onGoNext={() => setScreen('task')} />
+            )}
+            {screen === 'task' && (
+              <RequestBuilder
+                profile={profile}
+                task={task}
+                setTask={setTask}
+                onGoPreview={() => setScreen('preview')}
+                onApplyTemplate={applyTemplate}
+                templatesOpen={templatesOpen}
+                setTemplatesOpen={setTemplatesOpen}
+              />
+            )}
+            {screen === 'preview' && (
+              <RequestPreview
+                profile={profile}
+                task={task}
+                history={history}
+                onSaveHistory={addHistory}
+                onBack={() => setScreen('task')}
+                onGoRewrite={() => setScreen('rewrite')}
+              />
+            )}
+            {screen === 'rewrite' && (
+              <RewriteBuilder profile={profile} task={task} onBack={() => setScreen('task')} />
+            )}
+          </main>
+        </div>
+      </div>
 
       <style>{APP_CSS}</style>
     </div>
@@ -1646,25 +1683,72 @@ function App() {
 const APP_CSS = `
 :root { color-scheme: light; }
 * { box-sizing: border-box; }
-.app-shell {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 16px 16px 40px;
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: #E4F7F6;
   font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", Roboto, sans-serif;
-  color: #1A1A1A;
-  background: #ffffff;
-  min-height: 100vh;
 }
-.app-header h1 { font-size: 20px; font-weight: 800; margin: 4px 0 0; }
-.app-subtitle { color: #1A7A77; font-weight: 700; margin: 2px 0 8px; font-size: 14px; }
-.app-desc { font-size: 14px; line-height: 1.5; margin: 0 0 12px; color: #333; }
-.notice { font-size: 13px; background: #F1FBFA; border: 1px solid #BFEDEA; border-radius: 10px; padding: 10px 12px; line-height: 1.5; margin: 10px 0 16px; }
+.page-canvas {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: #1A1A1A;
+}
+.stage {
+  width: min(1240px, 96vw, 94vh * 16 / 9);
+  aspect-ratio: 16 / 9;
+  display: flex;
+  background: #fff;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(4, 48, 46, 0.22);
+}
+.brand-pane {
+  flex: 0 0 30%;
+  min-width: 220px;
+  background: linear-gradient(165deg, #2AC1BC 0%, #17948F 100%);
+  color: #04302E;
+  padding: 28px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow-y: auto;
+}
+.brand-top { text-align: center; }
+.mascot-svg { display: block; margin: 0 auto 10px; filter: drop-shadow(0 8px 14px rgba(4,48,46,0.25)); }
+.brand-pane h1 { font-size: 19px; font-weight: 800; margin: 4px 0 2px; line-height: 1.3; }
+.app-subtitle { color: #04302E; opacity: 0.85; font-weight: 700; margin: 2px 0 0; font-size: 13px; }
+.step-nav { display: flex; flex-direction: column; gap: 8px; margin: 20px 0; }
+.step-item {
+  display: flex; align-items: center; gap: 10px; text-align: left;
+  padding: 10px 12px; border-radius: 12px; border: none; background: rgba(255,255,255,0.18);
+  color: #04302E; font-size: 14px; font-weight: 700; min-height: 44px;
+}
+.step-item:disabled { opacity: 0.45; }
+.step-active { background: #ffffff; color: #0F6B67; }
+.step-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 999px; background: #04302E; color: #fff;
+  font-size: 12px; flex: none;
+}
+.step-active .step-num { background: #2AC1BC; }
+.brand-bottom { }
+.app-desc { font-size: 12.5px; line-height: 1.5; margin: 0 0 8px; color: #04302E; opacity: 0.9; }
+.brand-progress { font-size: 12px; font-weight: 700; margin: 0; color: #04302E; }
+.content-pane {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 24px 28px 32px;
+  background: #ffffff;
+}
+.step-breadcrumb { font-size: 12px; font-weight: 800; letter-spacing: 0.04em; color: #1A7A77; margin: 0 0 6px; text-transform: uppercase; }
+.notice { font-size: 13px; background: #F1FBFA; border: 1px solid #BFEDEA; border-radius: 10px; padding: 10px 12px; line-height: 1.5; margin: 0 0 16px; }
 .banner { font-size: 13px; background: #FFF6DE; border: 1px solid #F0DFA0; border-radius: 10px; padding: 8px 12px; margin: 8px 0; }
-.tab-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-.tab { font-size: 15px; padding: 12px 8px; border-radius: 10px; border: 1px solid #ddd; background: #fafafa; color: #1A1A1A; min-height: 44px; }
-.tab-active { background: #2AC1BC; border-color: #2AC1BC; color: #04302E; font-weight: 700; }
-.tab:disabled { opacity: 0.45; }
-.screen h2 { font-size: 19px; margin: 8px 0 2px; }
+.screen h2 { font-size: 20px; margin: 4px 0 2px; }
 .lead { font-size: 14px; color: #444; margin: 0 0 14px; }
 .field, .field-group { margin-bottom: 14px; }
 .field-group { border-top: 1px dashed #ddd; padding-top: 12px; }
@@ -1694,7 +1778,7 @@ input:focus, textarea:focus, select:focus, button:focus { outline: 3px solid #9b
 .btn-outline { background: #fff; color: #0F6B67; border-color: #2AC1BC; }
 .btn-ghost { background: transparent; color: #0F6B67; border: none; text-decoration: underline; padding: 8px 0; }
 .action-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
-.sticky-action { position: sticky; bottom: 8px; background: #ffffffee; padding: 8px 0; }
+.sticky-action { margin-top: 6px; padding: 8px 0; }
 .confirm-box, .compare-table { background: #FAFAFA; border: 1px solid #e2e2e2; border-radius: 12px; padding: 12px; margin: 10px 0; }
 .error-list { margin: 6px 0; padding-left: 18px; color: #B3261E; font-size: 13px; }
 .progress { margin: 10px 0 14px; }
@@ -1713,9 +1797,19 @@ input:focus, textarea:focus, select:focus, button:focus { outline: 3px solid #9b
 .compare-col h4 { margin: 0 0 4px; font-size: 13px; }
 .compare-col p { font-size: 13px; white-space: pre-wrap; }
 .checklist { list-style: none; padding: 0; margin: 8px 0; }
-.app-footer { margin-top: 24px; font-size: 12px; color: #888; text-align: center; }
-@media (min-width: 720px) {
-  .app-shell { max-width: 640px; padding-top: 24px; }
+.screen { max-width: 620px; margin: 0 auto; }
+@media (max-width: 620px) {
+  .stage { aspect-ratio: auto; height: 96vh; flex-direction: column; border-radius: 16px; }
+  .brand-pane { flex: 0 0 auto; flex-direction: row; align-items: center; gap: 14px; padding: 14px 16px; }
+  .brand-top { text-align: left; display: flex; align-items: center; gap: 10px; }
+  .mascot-svg { width: 48px; height: 48px; margin: 0; }
+  .brand-pane h1 { font-size: 14px; }
+  .app-subtitle { display: none; }
+  .step-nav { flex-direction: row; overflow-x: auto; margin: 0; flex: 1; }
+  .step-item { flex: none; }
+  .step-label { display: none; }
+  .brand-bottom { display: none; }
+  .content-pane { padding: 16px 16px 28px; }
 }
 `
 
