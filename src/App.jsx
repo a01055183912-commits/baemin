@@ -122,83 +122,85 @@ function resolvePlacement(platform, postType, opts) {
 }
 
 /* ---------------- 상황별 요청 문장 30선 ---------------- */
-/* 각 항목: title, category, type(글종류), defaultGoal, optionalPlatform, instruction, requiredFields */
+/* 배민아카데미 「상황별 요청 문장 30선」 자료의 실제 문장을 그대로 옮겼습니다.
+ * 각 항목: id, title(짧은 이름), category, type(글종류), instruction(원문 문장),
+ * quickBlank(빠른 선택에서 채울 단 하나의 빈칸, 없으면 null), optionalPlatform */
 
 const TEMPLATES = [
-  // 가게 소개 5
-  { id: 1, title: '처음 오는 손님께', category: '가게 소개', type: '가게 소개', defaultGoal: '방문을 결정하도록', optionalPlatform: null,
-    instruction: '처음 보는 손님에게 우리 가게의 대표메뉴와 구체적 강점 하나가 보이도록 소개해주세요.', requiredFields: [] },
-  { id: 2, title: '점심 직장인께', category: '가게 소개', type: '가게 소개', defaultGoal: '메뉴를 이해하고 주문하도록', optionalPlatform: null,
-    instruction: '점심 식사할 곳을 찾는 직장인이 메뉴를 이해하도록 소개해주세요. 빠른 제공이나 짧은 대기시간은 확인된 경우만 써주세요.', requiredFields: [] },
-  { id: 3, title: '혼밥 손님께', category: '가게 소개', type: '가게 소개', defaultGoal: '방문을 결정하도록', optionalPlatform: null,
-    instruction: '혼자 식사하는 손님에게 필요한 가게 정보를 중심으로 소개해주세요. 1인석·1인분 가능 여부를 추정하지 마세요.', requiredFields: [] },
-  { id: 4, title: '가족 손님께', category: '가게 소개', type: '가게 소개', defaultGoal: '방문을 결정하도록', optionalPlatform: null,
-    instruction: '가족이 함께 방문할 때 참고할 메뉴와 분위기를 알려주세요. 주차·아기의자·단체석은 입력된 경우만 포함해주세요.', requiredFields: [] },
-  { id: 5, title: '가게의 오래된 이야기', category: '가게 소개', type: '가게 소개', defaultGoal: '감사와 신뢰를 느끼도록', optionalPlatform: null,
-    instruction: '실제로 입력한 운영기간과 사장님의 철학을 중심으로 소개해주세요. 운영기간이 없으면 연수를 쓰지 마세요.', requiredFields: [] },
+  // A. 가게 소개·기본
+  { id: 1, title: '처음 오신 손님께 소개', category: '가게 소개·기본', type: '가게 소개', optionalPlatform: null,
+    instruction: '우리 가게를 처음 보는 손님에게 소개하는 글을 200자 이내로 써주세요.', quickBlank: null },
+  { id: 2, title: '다섯 가지 소개 문구', category: '가게 소개·기본', type: '가게 소개', optionalPlatform: null,
+    instruction: '우리 가게를 한 문장으로 설명하는 문구를 5개 만들어주세요. 서로 다른 각도로요.', quickBlank: null },
+  { id: 3, title: '강점 세 가지 정리', category: '가게 소개·기본', type: '가게 소개', optionalPlatform: null,
+    instruction: '우리 가게 강점 세 가지를 손님 입장에서 이해되게 정리해주세요.', quickBlank: null },
+  { id: 4, title: '배민 소개란 문구', category: '가게 소개·기본', type: '가게 소개', optionalPlatform: '배민앱',
+    instruction: '배민 가게 소개란에 넣을 문구를 150자 이내로 써주세요.', quickBlank: null },
+  { id: 5, title: '무엇을 시킬지 안내', category: '가게 소개·기본', type: '가게 소개', optionalPlatform: null,
+    instruction: '처음 오신 손님이 무엇을 시켜야 할지 알려주는 안내 문구를 써주세요.', quickBlank: null },
 
-  // 메뉴·신메뉴 5
-  { id: 6, title: '대표메뉴 설명', category: '메뉴·신메뉴', type: '메뉴 설명', defaultGoal: '메뉴를 이해하고 주문하도록', optionalPlatform: null,
-    instruction: '선택한 대표메뉴의 재료와 조리 특징을 중심으로 주문 판단에 도움을 주는 설명을 써주세요.', requiredFields: ['menuName'] },
-  { id: 7, title: '신메뉴 첫 안내', category: '메뉴·신메뉴', type: '메뉴 설명', defaultGoal: '신메뉴에 관심 갖도록', optionalPlatform: null,
-    instruction: '직접 입력한 신메뉴와 시작 시점을 알려주고, 처음 접하는 손님이 이해하도록 설명해주세요.', requiredFields: ['menuName', 'startDate'] },
-  { id: 8, title: '구성과 옵션 설명', category: '메뉴·신메뉴', type: '메뉴 설명', defaultGoal: '메뉴를 이해하고 주문하도록', optionalPlatform: null,
-    instruction: '이 메뉴에 실제 포함되는 구성과 선택 가능한 옵션을 헷갈리지 않게 설명해주세요.', requiredFields: ['menuName', 'composition'] },
-  { id: 9, title: '재료·조리 특징 소개', category: '메뉴·신메뉴', type: '메뉴 설명', defaultGoal: '메뉴를 이해하고 주문하도록', optionalPlatform: null,
-    instruction: '입력한 재료나 조리 과정의 구체적 특징을 중심으로 설명해주세요. 인증·원산지를 추가하지 마세요.', requiredFields: ['menuName', 'confirmedFeature'] },
-  { id: 10, title: '계절 메뉴 소개', category: '메뉴·신메뉴', type: '메뉴 설명', defaultGoal: '신메뉴에 관심 갖도록', optionalPlatform: null,
-    instruction: '계절 메뉴의 특징과 실제 판매 시기를 소개해주세요. 한정 판매가 확인되지 않았다면 품절 임박·지금만 같은 표현을 쓰지 마세요.', requiredFields: ['menuName'] },
+  // B. 메뉴·신메뉴
+  { id: 6, title: '대표메뉴 소개', category: '메뉴·신메뉴', type: '메뉴 설명', optionalPlatform: '배민앱',
+    instruction: '대표 메뉴 [메뉴명]을 배달앱 고객이 먹어보고 싶도록 150자 이내로 소개해주세요.', quickBlank: { key: 'menuName', label: '메뉴명', placeholder: '예: 얼큰돼지국밥' } },
+  { id: 7, title: '재료·과정 설명', category: '메뉴·신메뉴', type: '메뉴 설명', optionalPlatform: null,
+    instruction: '[메뉴명]의 재료와 만드는 과정을 손님이 믿음이 가도록 100자로 설명해주세요.', quickBlank: { key: 'menuName', label: '메뉴명', placeholder: '예: 얼큰돼지국밥' } },
+  { id: 8, title: '신메뉴 공지', category: '메뉴·신메뉴', type: '메뉴 설명', optionalPlatform: null,
+    instruction: '이번 주부터 시작하는 신메뉴 [메뉴명]을 궁금해지도록 공지 문구 100자로 써주세요.', quickBlank: { key: 'menuName', label: '신메뉴명', placeholder: '예: 매운갈비국밥' } },
+  { id: 9, title: '안 나가는 메뉴 다시 소개', category: '메뉴·신메뉴', type: '메뉴 설명', optionalPlatform: null,
+    instruction: '잘 안 나가는 메뉴 [메뉴명]의 설명 문구를 서로 다른 3가지 버전으로 써주세요.', quickBlank: { key: 'menuName', label: '메뉴명', placeholder: '예: 수육백반' } },
+  { id: 10, title: '메뉴판 한 줄 설명', category: '메뉴·신메뉴', type: '메뉴 설명', optionalPlatform: null,
+    instruction: '우리 메뉴판이 고르기 쉬워지도록 메뉴마다 한 줄 설명을 붙여주세요.', quickBlank: null },
 
-  // 이벤트 5
-  { id: 11, title: '주말 이벤트', category: '이벤트', type: '이벤트 안내', defaultGoal: '행사 조건을 이해하도록', optionalPlatform: null,
-    instruction: '행사명·기간·혜택·조건이 모두 드러나는 주말 행사 안내를 3줄로 정리해주세요.', requiredFields: ['eventName', 'eventPeriod', 'eventBenefit', 'eventCondition'] },
-  { id: 12, title: '포장 손님 혜택', category: '이벤트', type: '이벤트 안내', defaultGoal: '행사 조건을 이해하도록', optionalPlatform: null,
-    instruction: '실제로 제공하는 포장 혜택과 적용·제외 조건을 정리해주세요.', requiredFields: ['eventName', 'eventPeriod', 'eventBenefit', 'eventCondition'] },
-  { id: 13, title: '신메뉴 출시 행사', category: '이벤트', type: '이벤트 안내', defaultGoal: '신메뉴에 관심 갖도록', optionalPlatform: null,
-    instruction: '신메뉴 출시 행사에 누가 언제 참여하고 무엇을 받는지 명확히 알려주세요.', requiredFields: ['eventName', 'eventPeriod', 'eventBenefit', 'eventCondition'] },
-  { id: 14, title: '단골 감사 행사', category: '이벤트', type: '이벤트 안내', defaultGoal: '감사와 신뢰를 느끼도록', optionalPlatform: null,
-    instruction: '단골 감사 행사의 대상·기간·혜택·조건을 과장 없이 알려주세요.', requiredFields: ['eventName', 'eventPeriod', 'eventBenefit', 'eventCondition'] },
-  { id: 15, title: '행사 마감 안내', category: '이벤트', type: '이벤트 안내', defaultGoal: '행사 조건을 이해하도록', optionalPlatform: null,
-    instruction: '확정된 행사 종료 시점과 적용 조건을 정중하게 안내해주세요. 근거 없는 재고 부족을 쓰지 마세요.', requiredFields: ['eventName', 'eventPeriod', 'eventBenefit', 'eventCondition'] },
+  // C. 이벤트·프로모션
+  { id: 11, title: '주말 이벤트 안내', category: '이벤트·프로모션', type: '이벤트 안내', optionalPlatform: null,
+    instruction: '이번 주말 [이벤트 내용] 안내문을 조건이 헷갈리지 않게 3줄로 정리해주세요.', quickBlank: { key: 'quickNote', label: '이벤트 내용', placeholder: '예: 포장 주문 시 아메리카노 1잔 무료, 선착순 30명, 9/13~14' } },
+  { id: 12, title: '재방문 서비스 안내', category: '이벤트·프로모션', type: '이벤트 안내', optionalPlatform: null,
+    instruction: '재방문 손님께 드리는 서비스 안내를 부담스럽지 않게 써주세요.', quickBlank: null },
+  { id: 13, title: '첫 주문 할인 안내', category: '이벤트·프로모션', type: '이벤트 안내', optionalPlatform: '배민앱',
+    instruction: '첫 주문 고객 할인 안내를 배민 공지용으로 100자 이내로 써주세요.', quickBlank: null },
+  { id: 14, title: '리뷰 이벤트 안내', category: '이벤트·프로모션', type: '이벤트 안내', optionalPlatform: null,
+    instruction: '리뷰 이벤트 안내문을 강요처럼 보이지 않게 써주세요.', quickBlank: null },
+  { id: 15, title: '단골 감사 인사', category: '이벤트·프로모션', type: 'SNS 문구', optionalPlatform: null,
+    instruction: '오래된 단골 손님께 드리는 감사 인사를 SNS용으로, 낯간지럽지 않게 써주세요.', quickBlank: null },
 
-  // 날씨·계절·운영 상황 5
-  { id: 16, title: '비 오는 날 두 곳에 쓰기', category: '날씨·계절·운영 상황', type: '오늘의 상황 안내', defaultGoal: '방문을 결정하도록', optionalPlatform: 'dual',
-    instruction: '입력한 날씨와 실제 메뉴를 연결해 배민 공지 한 개와 인스타 글 한 개를 각각 써주세요.', requiredFields: ['situation'] },
-  { id: 17, title: '더운 날 인사', category: '날씨·계절·운영 상황', type: '오늘의 상황 안내', defaultGoal: '방문을 결정하도록', optionalPlatform: null,
-    instruction: '더운 날의 상황과 실제 메뉴를 자연스럽게 연결해주세요. 소개서에 없는 시원한 메뉴를 추가하지 마세요.', requiredFields: ['situation'] },
-  { id: 18, title: '쌀쌀한 날 인사', category: '날씨·계절·운영 상황', type: '오늘의 상황 안내', defaultGoal: '방문을 결정하도록', optionalPlatform: null,
-    instruction: '쌀쌀한 날 방문할 손님에게 실제 메뉴를 소개하는 짧은 글을 써주세요.', requiredFields: ['situation'] },
-  { id: 19, title: '재료 소진·조기 마감', category: '날씨·계절·운영 상황', type: '오늘의 상황 안내', defaultGoal: '영업 변경을 확인하도록', optionalPlatform: null,
-    instruction: '입력한 메뉴의 조기 마감을 정중하게 알려주세요. 다시 판매하는 시간은 확인된 경우만 안내해주세요.', requiredFields: ['soldOutMenu', 'soldOutDate'] },
-  { id: 20, title: '휴무 안내', category: '날씨·계절·운영 상황', type: '오늘의 상황 안내', defaultGoal: '영업 변경을 확인하도록', optionalPlatform: null,
-    instruction: '입력한 휴무일을 명확히 알리고, 다음 영업일이 확인된 경우 함께 안내해주세요.', requiredFields: ['closedDate'] },
+  // D. 날씨·계절·상황
+  { id: 16, title: '비 오는 날 (배민+인스타)', category: '날씨·계절·상황', type: '오늘의 상황 안내', optionalPlatform: 'dual',
+    instruction: '오늘 비가 많이 옵니다. 배민 공지 문구와 인스타그램 글을 각각 하나씩 써주세요.', quickBlank: null, defaultSituation: '비가 많이 오는 날' },
+  { id: 17, title: '추운 날 인사', category: '날씨·계절·상황', type: '오늘의 상황 안내', optionalPlatform: null,
+    instruction: '날이 많이 추워졌습니다. 따뜻한 메뉴를 권하는 짧은 글을 써주세요.', quickBlank: null, defaultSituation: '많이 추워진 날씨' },
+  { id: 18, title: '여름 한정 메뉴', category: '날씨·계절·상황', type: '오늘의 상황 안내', optionalPlatform: null,
+    instruction: '여름 한정으로 [메뉴]를 판매합니다. 지금 아니면 못 먹는다는 느낌을 과장 없이 살려주세요.', quickBlank: { key: 'menuName', label: '여름 한정 메뉴', placeholder: '예: 냉국밥' }, defaultSituation: '여름 한정 판매' },
+  { id: 19, title: '명절 연휴 안내', category: '날씨·계절·상황', type: '오늘의 상황 안내', optionalPlatform: null,
+    instruction: '명절 연휴 영업 일정을 정중하게 안내하는 문구를 써주세요.', quickBlank: { key: 'quickNote', label: '연휴 일정', placeholder: '예: 9/14(월)~9/16(수) 휴무, 9/17(목) 정상영업' } },
+  { id: 20, title: '오늘 마감 안내', category: '날씨·계절·상황', type: '오늘의 상황 안내', optionalPlatform: null,
+    instruction: '오늘 [메뉴]가 일찍 마감됐습니다. 아쉬워하실 손님께 드리는 안내문을 써주세요.', quickBlank: { key: 'menuName', label: '오늘 마감된 메뉴', placeholder: '예: 수육백반' }, defaultSituation: '메뉴 조기 마감' },
 
-  // 리뷰·응대 5
-  { id: 21, title: '좋은 리뷰에 감사', category: '리뷰·응대', type: '리뷰 답변', defaultGoal: '감사와 신뢰를 느끼도록', optionalPlatform: null,
-    instruction: '리뷰에서 손님이 실제로 쓴 표현 한 가지에 반응하며 감사 답글을 써주세요.', requiredFields: ['reviewText'] },
-  { id: 22, title: '맛이 아쉽다는 리뷰', category: '리뷰·응대', type: '리뷰 답변', defaultGoal: '감사와 신뢰를 느끼도록', optionalPlatform: null,
-    instruction: '맛에 대한 불편을 인정하고 변명 없이 사과하며, 확인한 조치 또는 확인 계획을 안내해주세요.', requiredFields: ['reviewText'], complaint: true },
-  { id: 23, title: '음식이 늦었다는 리뷰', category: '리뷰·응대', type: '리뷰 답변', defaultGoal: '감사와 신뢰를 느끼도록', optionalPlatform: null,
-    instruction: '늦은 음식에 대한 불편에 사과하고, 원인을 추정하지 않으며 확인할 사항을 안내해주세요.', requiredFields: ['reviewText'], complaint: true },
-  { id: 24, title: '확인 후 다시 안내', category: '리뷰·응대', type: '리뷰 답변', defaultGoal: '감사와 신뢰를 느끼도록', optionalPlatform: null,
-    instruction: '기존 리뷰와 사장님이 실제로 확인한 조치를 근거로 후속 답글을 써주세요. 하지 않은 개선을 완료했다고 쓰지 마세요.', requiredFields: ['reviewText', 'confirmedAction'] },
-  { id: 25, title: '단골 손님께 감사', category: '리뷰·응대', type: '리뷰 답변', defaultGoal: '감사와 신뢰를 느끼도록', optionalPlatform: null,
-    instruction: '단골 손님에게 전하는 짧은 감사 인사를 써주세요. 실제 리뷰 답글이면 리뷰의 표현에 반응하고, SNS 인사이면 확인되지 않은 방문 횟수·관계를 만들지 마세요.', requiredFields: [], needsModeChoice: true },
+  // E. 리뷰·고객 응대
+  { id: 21, title: '좋은 리뷰 답글', category: '리뷰·고객 응대', type: '리뷰 답변', optionalPlatform: null,
+    instruction: '별점 5점 리뷰 "[리뷰 내용]"에 답글을 100자 이내로 써주세요. 복사한 것처럼 보이지 않게요.', quickBlank: { key: 'reviewText', label: '실제 리뷰 내용 (별점 5점)', placeholder: '예: 국물이 깔끔해요' }, reviewMeta: { rating: '5' } },
+  { id: 22, title: '불만 리뷰 답글', category: '리뷰·고객 응대', type: '리뷰 답변', optionalPlatform: null,
+    instruction: '별점 2점 리뷰 "[불만 내용]"에 답글을 써주세요. 사과 → 변명 없이 → 확인·개선 → 재방문 제안 순서로요.', quickBlank: { key: 'reviewText', label: '실제 리뷰 내용 (별점 2점, 불만)', placeholder: '예: 오늘따라 국물이 좀 짰어요' }, reviewMeta: { rating: '2', complaint: true } },
+  { id: 23, title: '배달 지연 리뷰 답글', category: '리뷰·고객 응대', type: '리뷰 답변', optionalPlatform: null,
+    instruction: '배달이 늦었다는 리뷰에 대한 답글을 감정적이지 않게 써주세요.', quickBlank: { key: 'reviewText', label: '실제 리뷰 내용 (배달 지연)', placeholder: '예: 배달이 너무 늦게 왔어요' }, reviewMeta: { complaint: true } },
+  { id: 24, title: '리뷰 답글 5가지', category: '리뷰·고객 응대', type: '리뷰 답변', optionalPlatform: null,
+    instruction: '리뷰 답글 5개를 각각 다른 표현으로 써주세요. 같은 말이 반복되지 않게요.', quickBlank: { key: 'reviewText', label: '실제 리뷰 내용', placeholder: '최근에 받은 리뷰를 붙여넣어주세요' } },
+  { id: 25, title: '칭찬 리뷰 살리기', category: '리뷰·고객 응대', type: '리뷰 답변', optionalPlatform: null,
+    instruction: '손님이 남긴 칭찬을 다음 손님도 궁금해지도록 답글에 자연스럽게 살려주세요.', quickBlank: { key: 'reviewText', label: '실제 리뷰 내용 (칭찬)', placeholder: '예: 사장님이 친절하셔서 또 오고 싶어요' } },
 
-  // 플랫폼 변환 5
-  { id: 26, title: '배민 메뉴 설명으로', category: '플랫폼 변환', type: 'rewrite', defaultGoal: null, optionalPlatform: '배민앱',
-    instruction: '아래 원문을 선택한 메뉴의 배민 설명으로 바꿔주세요. 실제 차별점이 한눈에 보이게 해주세요.', requiredFields: ['sourceText', 'menuName'] },
-  { id: 27, title: '네이버 상세설명으로', category: '플랫폼 변환', type: 'rewrite', defaultGoal: null, optionalPlatform: '네이버 플레이스',
-    instruction: '아래 원문을 지역과 방문 상황이 드러나는 업체 상세설명으로 바꿔주세요.', requiredFields: ['sourceText'] },
-  { id: 28, title: '구글 업체 설명으로', category: '플랫폼 변환', type: 'rewrite', defaultGoal: null, optionalPlatform: '구글맵',
-    instruction: '아래 원문을 업종·위치·대표메뉴 중심의 업체 설명으로 바꿔주세요. 영어 병기는 선택한 경우만 한 줄 추가해주세요.', requiredFields: ['sourceText'] },
-  { id: 29, title: '인스타그램 글로', category: '플랫폼 변환', type: 'rewrite', defaultGoal: null, optionalPlatform: '인스타그램',
-    instruction: '아래 원문을 실제 메뉴나 상황이 첫 두 줄에 드러나는 인스타 글로 바꿔주세요. 해시태그는 선택한 개수만 후보로 분리해주세요.', requiredFields: ['sourceText'] },
-  { id: 30, title: '공지 원문을 새소식으로', category: '플랫폼 변환', type: 'rewrite', defaultGoal: null, optionalPlatform: 'choose',
-    instruction: '아래 공지를 선택한 채널의 새소식·업데이트에 맞게 바꿔주세요. 날짜와 조건을 빠뜨리지 마세요.', requiredFields: ['sourceText'] },
+  // F. 플랫폼 변환·마무리 (받은 글을 다른 곳에 맞게 바꾸기 — 원문 붙여넣기 필요)
+  { id: 26, title: '네이버로 바꾸기', category: '플랫폼 변환·마무리', type: 'rewrite', optionalPlatform: '네이버 플레이스',
+    instruction: '이 글을 네이버 플레이스 소개란용으로 바꿔주세요. 검색해서 들어온 손님 기준, 300자 내외로요.' },
+  { id: 27, title: '인스타그램으로 바꾸기', category: '플랫폼 변환·마무리', type: 'rewrite', optionalPlatform: '인스타그램',
+    instruction: '이 글을 인스타그램용으로 바꿔주세요. 첫 두 줄로 눈길을 끌고 마지막에 해시태그 8개요.' },
+  { id: 28, title: '배민 메뉴설명으로', category: '플랫폼 변환·마무리', type: 'rewrite', optionalPlatform: '배민앱',
+    instruction: '이 글을 배민 메뉴 설명란용 100자 이내로 줄여주세요.' },
+  { id: 29, title: '구글맵으로 바꾸기', category: '플랫폼 변환·마무리', type: 'rewrite', optionalPlatform: '구글맵',
+    instruction: '이 글을 구글맵 소개란용으로 바꿔주세요. 외국인이나 처음 오는 방문객도 이해되게, 위치와 대표 메뉴를 150자로요.' },
+  { id: 30, title: '점검 후 최종안', category: '플랫폼 변환·마무리', type: 'rewrite', optionalPlatform: 'choose',
+    instruction: '이 글이 우리 가게 특징을 충분히 담고 있는지 스스로 점검하고, 개선된 최종안을 써주세요.' },
 ]
 
-const TEMPLATE_CATEGORIES = ['가게 소개', '메뉴·신메뉴', '이벤트', '날씨·계절·운영 상황', '리뷰·응대', '플랫폼 변환']
+const TEMPLATE_CATEGORIES = ['가게 소개·기본', '메뉴·신메뉴', '이벤트·프로모션', '날씨·계절·상황', '리뷰·고객 응대', '플랫폼 변환·마무리']
 
 /* ---------------- 순수 함수 ---------------- */
 
@@ -275,6 +277,11 @@ export function validateTask(profile, task) {
   const addMissing = (key, msg) => { missing.push(key); messages[key] = msg }
 
   if (!task.platform) addMissing('platform', '올릴 곳을 선택해주세요.')
+
+  if (task.quickMode) {
+    if (task.dualMode && !task.platform2) addMissing('platform2', '두 번째 올릴 곳을 선택해주세요.')
+    return { valid: missing.length === 0, missing, messages }
+  }
 
   if (task.audience === '직접 입력' && !(task.audienceCustom || '').trim()) {
     addMissing('audienceCustom', '누구에게 보여줄지 직접 입력해주세요.')
@@ -356,6 +363,8 @@ function resolveLength(task, placement) {
 function buildFactLines(task) {
   const lines = []
   const push = (label, value) => { if ((value || '').toString().trim()) lines.push(`- ${label}: ${value}`) }
+
+  push('이번에 전달할 내용', task.quickNote)
 
   if (task.type === '메뉴 설명') {
     push('이번 메뉴명', task.menuName)
@@ -839,6 +848,8 @@ function defaultTask() {
     platform2: '',
     templateInstruction: '',
     templateTitle: '',
+    quickNote: '',
+    quickMode: false,
   }
 }
 
@@ -847,7 +858,7 @@ function platformOptionsFor(type) {
   return PLATFORMS
 }
 
-function RequestBuilder({ profile, task, setTask, onGoPreview, onApplyTemplate, templatesOpen, setTemplatesOpen }) {
+function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) {
   const check = validateTask(profile, task)
   const [notice, setNotice] = useState('')
 
@@ -875,8 +886,9 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onApplyTemplate, 
 
   return (
     <div className="screen">
-      <h2>이번에 쓸 글</h2>
-      <p className="lead">상황에 맞는 사실만 입력하면 나머지는 다음 화면에서 요청 문장으로 묶어드려요.</p>
+      <button className="btn-ghost" onClick={onBackToQuick}>← 빠른 선택으로 돌아가기</button>
+      <h2>직접 만들기</h2>
+      <p className="lead">상황에 맞는 사실만 입력하면 나머지는 다음 화면에서 요청 문장으로 묶어드려요. 30개 예시 문장 중 고르는 게 더 쉬우면 위 버튼으로 돌아가세요.</p>
       {notice && <p className="banner">{notice}</p>}
 
       <div className="field">
@@ -1128,8 +1140,6 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onApplyTemplate, 
         )}
       </details>
 
-      <TemplateList open={templatesOpen} setOpen={setTemplatesOpen} onApply={onApplyTemplate} />
-
       <div className="action-row sticky-action">
         <button className="btn btn-primary" disabled={!check.valid} onClick={onGoPreview}>요청 문장 만들기</button>
       </div>
@@ -1142,30 +1152,168 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onApplyTemplate, 
   )
 }
 
-/* ---------------- 상황별 요청 문장 30선 (TemplateList) ---------------- */
+/* ============================================================
+ * 빠른 선택 (QuickPicker) — 화면 2의 기본 화면.
+ * 「상황별 요청 문장 30선」에서 하나 고르고, 있으면 빈칸 하나만 채우면
+ * 바로 요청 문장으로 넘어갑니다. 고객·목적·말투·분량 같은 선택은 묻지 않고
+ * 소개서와 문장에 맞춰 자동으로 채워요.
+ * ============================================================ */
 
-function TemplateList({ open, setOpen, onApply }) {
+const CATEGORY_DEFAULT_GOAL = {
+  '가게 소개·기본': '방문을 결정하도록',
+  '메뉴·신메뉴': '메뉴를 이해하고 주문하도록',
+  '이벤트·프로모션': '행사 조건을 이해하도록',
+  '날씨·계절·상황': '방문을 결정하도록',
+  '리뷰·고객 응대': '감사와 신뢰를 느끼도록',
+}
+
+function buildQuickTask(template, platform, blankValue) {
+  const t = defaultTask()
+  t.quickMode = true
+  t.type = template.type
+  t.templateInstruction = template.instruction
+  t.templateTitle = template.title
+  t.goal = CATEGORY_DEFAULT_GOAL[template.category] || '방문을 결정하도록'
+  t.situation = template.defaultSituation || ''
+
+  if (template.optionalPlatform === 'dual') {
+    t.dualMode = true
+    t.platform = '배민앱'
+    t.platform2 = '인스타그램'
+  } else {
+    t.platform = platform || template.optionalPlatform || ''
+  }
+
+  const placement = t.platform ? resolvePlacement(t.platform, t.type, {}) : null
+  t.length = (placement && placement.defaultLen) || 100
+
+  if (template.quickBlank) {
+    const key = template.quickBlank.key
+    if (key === 'reviewText') {
+      t.reviewText = blankValue
+      t.reviewSource = t.platform
+      if (template.reviewMeta) {
+        if (template.reviewMeta.rating) t.rating = template.reviewMeta.rating
+        if (template.reviewMeta.complaint) t.complaint = true
+      }
+    } else if (key === 'menuName') {
+      t.menuName = blankValue
+    } else if (key === 'quickNote') {
+      t.quickNote = blankValue
+    }
+  }
+  return t
+}
+
+function QuickPicker({ profile, setTask, onGoPreview, onGoRewrite, onGoCustom }) {
   const [cat, setCat] = useState(TEMPLATE_CATEGORIES[0])
+  const [selectedId, setSelectedId] = useState(null)
+  const [platform, setPlatform] = useState('')
+  const [blank, setBlank] = useState('')
+
+  const selected = TEMPLATES.find((t) => t.id === selectedId) || null
+
+  function selectTemplate(t) {
+    setSelectedId(t.id)
+    setBlank('')
+    setPlatform(typeof t.optionalPlatform === 'string' && t.optionalPlatform !== 'dual' && t.optionalPlatform !== 'choose' ? t.optionalPlatform : '')
+  }
+
+  function platformOptions(t) {
+    if (t.type === '리뷰 답변') return PLATFORMS.filter((p) => p !== '인스타그램')
+    return PLATFORMS
+  }
+
+  function needsPlatformPicker(t) {
+    return t.optionalPlatform !== 'dual' && !(typeof t.optionalPlatform === 'string' && t.optionalPlatform !== 'choose')
+  }
+
+  function canSubmit(t) {
+    if (needsPlatformPicker(t) && !platform) return false
+    if (t.quickBlank && !blank.trim()) return false
+    return true
+  }
+
+  function handleSubmit(t) {
+    if (!canSubmit(t)) return
+    const chosenPlatform = needsPlatformPicker(t) ? platform : (typeof t.optionalPlatform === 'string' ? t.optionalPlatform : platform)
+    const task = buildQuickTask(t, chosenPlatform, blank)
+    setTask(task)
+    onGoPreview()
+  }
+
+  function handleRewriteGo(t) {
+    onGoRewrite(t)
+  }
+
   return (
-    <details className="template-panel" open={open} onToggle={(e) => setOpen(e.target.open)}>
-      <summary>상황별 요청 문장 30선 (선택)</summary>
-      <p className="field-hint">예시를 고르면 요청 방식만 채워져요. 실제 메뉴·날짜·할인 사실은 자동으로 입력되지 않아요.</p>
+    <div className="screen">
+      <h2>이번에 쓸 글</h2>
+      <p className="lead">필요한 상황을 고르면 바로 요청 문장을 만들어드려요. 빈칸이 있으면 그것만 채워주세요.</p>
+
       <div className="chip-row">
         {TEMPLATE_CATEGORIES.map((c) => (
-          <button key={c} className={`chip ${cat === c ? 'chip-active' : ''}`} onClick={() => setCat(c)}>{c}</button>
+          <button key={c} className={`chip ${cat === c ? 'chip-active' : ''}`} onClick={() => { setCat(c); setSelectedId(null) }}>{c}</button>
         ))}
       </div>
-      <ul className="template-list">
+
+      <ul className="quick-list">
         {TEMPLATES.filter((t) => t.category === cat).map((t) => (
           <li key={t.id}>
-            <button className="template-item" onClick={() => onApply(t)}>
-              <span className="template-title">{t.id}. {t.title}</span>
+            <button className={`quick-card ${selectedId === t.id ? 'quick-card-active' : ''}`} onClick={() => selectTemplate(t)}>
+              <span className="template-title">{t.title}</span>
               <span className="template-instruction">{t.instruction}</span>
             </button>
+
+            {selectedId === t.id && (
+              <div className="quick-detail">
+                {t.type === 'rewrite' ? (
+                  <>
+                    <p className="field-hint">받은 글(또는 이전 글) 원문을 붙여넣고 바꾸는 화면으로 이동해요.</p>
+                    <button className="btn btn-primary" onClick={() => handleRewriteGo(t)}>다음: 원문 붙여넣기</button>
+                  </>
+                ) : (
+                  <>
+                    {t.optionalPlatform === 'dual' && (
+                      <p className="field-hint">배민 공지 문구와 인스타그램 글, 두 가지를 한 번에 만들어드려요.</p>
+                    )}
+                    {needsPlatformPicker(t) && (
+                      <div className="field">
+                        <label>올릴 곳</label>
+                        <div className="chip-row">
+                          {platformOptions(t).map((p) => (
+                            <button key={p} className={`chip ${platform === p ? 'chip-active' : ''}`} onClick={() => setPlatform(p)}>{p}</button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {!needsPlatformPicker(t) && typeof t.optionalPlatform === 'string' && t.optionalPlatform !== 'dual' && (
+                      <p className="field-hint">올릴 곳: <strong>{t.optionalPlatform}</strong></p>
+                    )}
+                    {t.quickBlank && (
+                      <div className="field">
+                        <label>{t.quickBlank.label}</label>
+                        {t.quickBlank.key === 'reviewText' ? (
+                          <textarea rows={3} value={blank} onChange={(e) => setBlank(e.target.value)} placeholder={t.quickBlank.placeholder} />
+                        ) : (
+                          <input value={blank} onChange={(e) => setBlank(e.target.value)} placeholder={t.quickBlank.placeholder} />
+                        )}
+                        {detectSensitiveData(blank).flagged && (
+                          <p className="field-error">손님·직원·계좌 정보로 보여요. 가게 정보만 남겨주세요.</p>
+                        )}
+                      </div>
+                    )}
+                    <button className="btn btn-primary" disabled={!canSubmit(t)} onClick={() => handleSubmit(t)}>요청 문장 만들기</button>
+                  </>
+                )}
+              </div>
+            )}
           </li>
         ))}
       </ul>
-    </details>
+
+      <button className="btn-ghost" onClick={onGoCustom}>원하는 상황이 없나요? 직접 만들기 →</button>
+    </div>
   )
 }
 
@@ -1304,13 +1452,13 @@ function findForbiddenHits(text, avoidStr) {
   return hits
 }
 
-function RewriteBuilder({ profile, task, onBack }) {
+function RewriteBuilder({ profile, task, onBack, initialDirection, initialNewPlatform }) {
   const [original, setOriginal] = useState('')
-  const [direction, setDirection] = useState(null)
+  const [direction, setDirection] = useState(initialDirection || null)
   const [highlight, setHighlight] = useState('')
   const [experience, setExperience] = useState('')
   const [targetLength, setTargetLength] = useState('')
-  const [newPlatform, setNewPlatform] = useState('')
+  const [newPlatform, setNewPlatform] = useState(initialNewPlatform || '')
   const [isReviewTarget, setIsReviewTarget] = useState(false)
   const [rwReviewText, setRwReviewText] = useState('')
   const [rwConfirmedAction, setRwConfirmedAction] = useState('')
@@ -1561,7 +1709,8 @@ function App() {
   const [profile, setProfile] = useState({ ...EMPTY_PROFILE, avoid: AVOID_DEFAULT, __sensitive: {} })
   const [task, setTask] = useState(defaultTask())
   const [history, setHistory] = useState([])
-  const [templatesOpen, setTemplatesOpen] = useState(false)
+  const [customMode, setCustomMode] = useState(false)
+  const [rewritePrefill, setRewritePrefill] = useState(null)
 
   function addHistory(text) {
     setHistory((h) => {
@@ -1577,29 +1726,17 @@ function App() {
     })
   }
 
-  function applyTemplate(t) {
-    if (t.type === 'rewrite') {
-      setScreen('rewrite')
-      return
+  function goToRewriteFromQuick(t) {
+    const base = defaultTask()
+    if (typeof t.optionalPlatform === 'string' && t.optionalPlatform !== 'choose') {
+      base.platform = t.optionalPlatform
     }
-    setTask((prev) => {
-      const next = { ...prev, type: t.type, templateInstruction: t.instruction, templateTitle: t.title }
-      if (t.defaultGoal) next.goal = t.defaultGoal
-      if (t.type === '메뉴 설명' || t.requiredFields.includes('menuName')) next.situationKind = '일반 상황'
-      if (t.requiredFields.includes('startDate')) next.situationKind = '신메뉴 출시'
-      if (t.requiredFields.includes('soldOutMenu')) next.situationKind = '재료 소진'
-      if (t.requiredFields.includes('closedDate')) next.situationKind = '휴무'
-      if (!prev.platform && typeof t.optionalPlatform === 'string' && PLATFORMS.includes(t.optionalPlatform)) {
-        next.platform = t.optionalPlatform
-      }
-      if (t.optionalPlatform === 'dual' && !prev.platform && t.type !== '리뷰 답변') {
-        next.dualMode = true
-        next.platform = '배민앱'
-        next.platform2 = '인스타그램'
-      }
-      return next
+    setTask(base)
+    setRewritePrefill({
+      direction: t.id === 30 ? 'factual' : 'otherPlatform',
+      newPlatform: typeof t.optionalPlatform === 'string' && t.optionalPlatform !== 'choose' ? t.optionalPlatform : '',
     })
-    setScreen('task')
+    setScreen('rewrite')
   }
 
   const stat = validateProfile(profile)
@@ -1647,15 +1784,22 @@ function App() {
             {screen === 'profile' && (
               <StoreProfile profile={profile} setProfile={setProfile} onGoNext={() => setScreen('task')} />
             )}
-            {screen === 'task' && (
+            {screen === 'task' && !customMode && (
+              <QuickPicker
+                profile={profile}
+                setTask={setTask}
+                onGoPreview={() => setScreen('preview')}
+                onGoRewrite={goToRewriteFromQuick}
+                onGoCustom={() => setCustomMode(true)}
+              />
+            )}
+            {screen === 'task' && customMode && (
               <RequestBuilder
                 profile={profile}
                 task={task}
                 setTask={setTask}
                 onGoPreview={() => setScreen('preview')}
-                onApplyTemplate={applyTemplate}
-                templatesOpen={templatesOpen}
-                setTemplatesOpen={setTemplatesOpen}
+                onBackToQuick={() => setCustomMode(false)}
               />
             )}
             {screen === 'preview' && (
@@ -1665,11 +1809,17 @@ function App() {
                 history={history}
                 onSaveHistory={addHistory}
                 onBack={() => setScreen('task')}
-                onGoRewrite={() => setScreen('rewrite')}
+                onGoRewrite={() => { setRewritePrefill(null); setScreen('rewrite') }}
               />
             )}
             {screen === 'rewrite' && (
-              <RewriteBuilder profile={profile} task={task} onBack={() => setScreen('task')} />
+              <RewriteBuilder
+                profile={profile}
+                task={task}
+                onBack={() => setScreen('task')}
+                initialDirection={rewritePrefill && rewritePrefill.direction}
+                initialNewPlatform={rewritePrefill && rewritePrefill.newPlatform}
+              />
             )}
           </main>
         </div>
@@ -1792,6 +1942,12 @@ input:focus, textarea:focus, select:focus, button:focus { outline: 3px solid #9b
 .template-item { width: 100%; text-align: left; border: 1px solid #ddd; border-radius: 10px; padding: 10px 12px; background: #fff; }
 .template-title { display: block; font-weight: 700; font-size: 13.5px; }
 .template-instruction { display: block; font-size: 12.5px; color: #555; margin-top: 2px; }
+.quick-list { list-style: none; margin: 12px 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.quick-card { width: 100%; text-align: left; border: 1px solid #ddd; border-radius: 14px; padding: 14px; background: #fff; min-height: 44px; }
+.quick-card .template-title { font-size: 15px; }
+.quick-card .template-instruction { font-size: 13px; }
+.quick-card-active { border-color: #2AC1BC; border-width: 2px; background: #F1FBFA; }
+.quick-detail { border: 1px solid #BFEDEA; border-top: none; border-radius: 0 0 14px 14px; margin-top: -10px; padding: 14px; background: #F7FEFE; }
 .request-box { white-space: pre-wrap; word-break: break-word; background: #F7FEFE; border: 1px solid #BFEDEA; border-radius: 12px; padding: 14px; font-size: 14px; line-height: 1.6; max-height: 60vh; overflow-y: auto; }
 .compare-col { margin-top: 8px; }
 .compare-col h4 { margin: 0 0 4px; font-size: 13px; }
