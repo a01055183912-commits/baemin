@@ -1850,6 +1850,12 @@ body {
   margin: 0;
   background: #E4F7F6;
   font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", Roboto, sans-serif;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+.chip, .badge, .step-label, .field-no, .field-label {
+  word-break: keep-all;
+  white-space: nowrap;
 }
 .page-canvas {
   min-height: 100vh;
