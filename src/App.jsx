@@ -58,7 +58,7 @@ const GOAL_OPTIONS = [
   '행사 조건을 이해하도록', '영업 변경을 확인하도록', '감사와 신뢰를 느끼도록', '직접 입력',
 ]
 
-const PLATFORMS = ['배민앱', '네이버 플레이스', '구글맵', '인스타그램']
+const PLATFORMS = ['배민앱', '네이버 플레이스', '카카오맵', '인스타그램']
 
 const TONE_OPTIONS = [
   '소개서 말투', '담백하고 정감 있게', '친근하게', '차분하고 정중하게', '사장님이 직접 말하듯', '직접 입력',
@@ -75,39 +75,42 @@ const DEFAULT_GOAL_BY_TYPE = {
   '오늘의 상황 안내': '영업 변경을 확인하도록',
 }
 
-/* 플랫폼×글종류 → 게시 위치/작성 규칙 텍스트 (E3 표) */
+/* 플랫폼×글종류 → 게시 위치/작성 규칙 텍스트 (E3 표)
+ * 배민·네이버 플레이스·카카오맵·인스타그램 공식 자료 기준(2026-09-10 점검)으로
+ * 정리했습니다. 글자 수는 각 플랫폼이 보장하는 "공식 규정"이 아니라 이 앱이
+ * 제안하는 "목표 분량"이며, 정확한 입력 한도·노출 기준은 각 플랫폼 관리자
+ * 화면에서 사장님이 직접 확인하는 것이 가장 정확합니다. */
 function resolvePlacement(platform, postType, opts) {
-  const englishOn = !!(opts && opts.englishOn)
   const hashtagCount = (opts && opts.hashtagCount) ?? 3
 
   const table = {
     '배민앱': {
-      '가게 소개': { place: '가게 소개', rule: '가게 소개 영역에 게시합니다. 대표메뉴와 구체적 강점으로 손님의 선택을 돕는 문장으로 써주세요.', defaultLen: 100 },
-      '메뉴 설명': { place: '메뉴 설명', rule: '메뉴 설명 영역에 게시합니다. 재료·구성·특징 등 주문 판단에 필요한 정보를 우선해주세요.', defaultLen: 100 },
+      '가게 소개': { place: '가게 소개', rule: '가게 소개 영역에 게시합니다(입력 한도 최대 500자). 대표메뉴와 구체적 강점으로 손님의 선택을 돕는 문장으로 써주세요. 외부 주문·결제 유도, 외부 링크·SNS 홍보 문구는 넣지 마세요.', defaultLen: 100 },
+      '메뉴 설명': { place: '메뉴 설명', rule: '메뉴 설명 영역에 게시합니다. 맛·식감·재료·구성처럼 주문 결정에 필요한 구체적 정보를 우선해주세요. "정성껏 준비했습니다" 같은 정보 없는 문장 대신 실제 재료·조리 방식을 써주세요.', defaultLen: 100 },
       '이벤트 안내': { place: '사장님 공지', rule: '사장님 공지 영역에 게시합니다. 날짜·변경 사항·혜택·조건을 명확히 써주세요.', defaultLen: 150 },
       'SNS 문구': { place: '사장님 공지', rule: '사장님 공지 영역에 게시합니다. 날짜·변경 사항·혜택·조건을 명확히 써주세요.', defaultLen: 150 },
       '오늘의 상황 안내': { place: '사장님 공지', rule: '사장님 공지 영역에 게시합니다. 날짜·변경 사항·혜택·조건을 명확히 써주세요.', defaultLen: 150 },
-      '리뷰 답변': { place: '리뷰 답변', rule: '실제 손님이 남긴 표현에 반응해 답글을 써주세요. 마케팅용 해시태그와 자동 영어 병기는 넣지 마세요.', defaultLen: 100 },
+      '리뷰 답변': { place: '리뷰 답변', rule: '실제 손님이 남긴 표현에 반응해 답글을 써주세요. 마케팅용 해시태그는 넣지 마세요.', defaultLen: 100 },
     },
     '네이버 플레이스': {
-      '가게 소개': { place: '업체 상세설명(초안)', rule: '업체 상세설명 초안입니다. 지역·메뉴·고객의 방문 상황을 자연스럽게 연결해주세요.', defaultLen: 300 },
-      '메뉴 설명': { place: '업체 상세설명(초안)', rule: '업체 상세설명 초안입니다. 지역·메뉴·고객의 방문 상황을 자연스럽게 연결해주세요.', defaultLen: 300 },
+      '가게 소개': { place: '업체 상세설명(초안)', rule: '업체 상세설명 초안입니다. 업종·대표메뉴·가격·특징처럼 검색해서 비교하는 손님에게 필요한 정보를 정확히 써주세요. 특정 키워드를 반복해 넣는다고 상위 노출이 보장되지 않으니 자연스럽게만 써주세요.', defaultLen: 300 },
+      '메뉴 설명': { place: '업체 상세설명(초안)', rule: '업체 상세설명 초안입니다. 업종·대표메뉴·가격·특징처럼 검색해서 비교하는 손님에게 필요한 정보를 정확히 써주세요. 특정 키워드를 반복해 넣는다고 상위 노출이 보장되지 않으니 자연스럽게만 써주세요.', defaultLen: 300 },
       '이벤트 안내': { place: '새소식·공지', rule: '새소식·공지 영역에 게시합니다. 시기성 정보와 조건을 우선해주세요.', defaultLen: 300 },
       'SNS 문구': { place: '새소식·공지', rule: '새소식·공지 영역에 게시합니다. 시기성 정보와 조건을 우선해주세요.', defaultLen: 300 },
       '오늘의 상황 안내': { place: '새소식·공지', rule: '새소식·공지 영역에 게시합니다. 시기성 정보와 조건을 우선해주세요.', defaultLen: 300 },
-      '리뷰 답변': { place: '리뷰 답변', rule: '실제 손님이 남긴 표현에 반응해 답글을 써주세요. 마케팅용 해시태그와 자동 영어 병기는 넣지 마세요.', defaultLen: 100 },
+      '리뷰 답변': { place: '리뷰 답변', rule: '실제 손님이 남긴 표현에 반응해 답글을 써주세요. 마케팅용 해시태그는 넣지 마세요.', defaultLen: 100 },
     },
-    '구글맵': {
-      '가게 소개': { place: '업체 설명(초안)', rule: '업체 설명 초안입니다. 위치·업종·대표메뉴·특징 중심으로 써주세요. 가격 중심 홍보 문구, 할인 행사 강조, 링크는 넣지 마세요.', defaultLen: 100, english: englishOn },
-      '메뉴 설명': { place: '업체 설명(초안)', rule: '업체 설명 초안입니다. 위치·업종·대표메뉴·특징 중심으로 써주세요. 가격 중심 홍보 문구, 할인 행사 강조, 링크는 넣지 마세요.', defaultLen: 100, english: englishOn },
-      '이벤트 안내': { place: '혜택·이벤트 게시물(초안)', rule: '혜택·이벤트 게시물 초안입니다. 행사 사실과 조건을 포함해주세요.', defaultLen: 100, english: englishOn },
-      'SNS 문구': { place: '업데이트 게시물(초안)', rule: '업데이트 게시물 초안입니다.', defaultLen: 100, english: englishOn },
-      '오늘의 상황 안내': { place: '업데이트 게시물(초안)', rule: '업데이트 게시물 초안입니다.', defaultLen: 100, english: englishOn },
-      '리뷰 답변': { place: '리뷰 답변', rule: '실제 손님이 남긴 표현에 반응해 답글을 써주세요. 마케팅용 해시태그와 자동 영어 병기는 넣지 마세요.', defaultLen: 100 },
+    '카카오맵': {
+      '가게 소개': { place: '매장 정보(초안)', rule: '카카오맵 매장 정보용 초안입니다. 긴 홍보 문구보다 위치·영업시간·가격·대표메뉴처럼 방문을 결정하는 데 필요한 사실을 간결하고 정확하게 써주세요.', defaultLen: 100 },
+      '메뉴 설명': { place: '매장 정보(초안)', rule: '카카오맵 매장 정보용 초안입니다. 긴 홍보 문구보다 위치·영업시간·가격·대표메뉴처럼 방문을 결정하는 데 필요한 사실을 간결하고 정확하게 써주세요.', defaultLen: 100 },
+      '이벤트 안내': { place: '매장 소식(초안)', rule: '매장 소식(이벤트·쿠폰) 게시물 초안입니다. 실제 조건과 기간을 정확히 써주세요.', defaultLen: 100 },
+      'SNS 문구': { place: '매장 소식(초안)', rule: '매장 소식 게시물 초안입니다.', defaultLen: 100 },
+      '오늘의 상황 안내': { place: '매장 소식(초안)', rule: '매장 소식 게시물 초안입니다. "오늘 영업하나요?" 같은 질문에 바로 답이 되도록 써주세요.', defaultLen: 100 },
+      '리뷰 답변': { place: '리뷰 답변', rule: '실제 손님이 남긴 표현에 반응해 답글을 써주세요. 마케팅용 해시태그는 넣지 마세요.', defaultLen: 100 },
     },
     '인스타그램': {
-      '가게 소개': { place: '피드·릴스 설명·스토리 문구', rule: '첫 두 줄에 실제 메뉴나 상황이 드러나도록, 짧은 문장 위주로 써주세요.', defaultLen: 150, hashtag: hashtagCount },
-      '메뉴 설명': { place: '피드·릴스 설명·스토리 문구', rule: '첫 두 줄에 실제 메뉴나 상황이 드러나도록, 짧은 문장 위주로 써주세요.', defaultLen: 150, hashtag: hashtagCount },
+      '가게 소개': { place: '피드·릴스 설명·스토리 문구', rule: '첫 두 줄에 실제 메뉴나 상황이 드러나도록, 짧은 문장 위주로 써주세요. 광고문처럼 과장하지 말고 우리 가게만 보여줄 수 있는 장면·이야기를 담아주세요.', defaultLen: 150, hashtag: hashtagCount },
+      '메뉴 설명': { place: '피드·릴스 설명·스토리 문구', rule: '첫 두 줄에 실제 메뉴나 상황이 드러나도록, 짧은 문장 위주로 써주세요. 광고문처럼 과장하지 말고 우리 가게만 보여줄 수 있는 장면·이야기를 담아주세요.', defaultLen: 150, hashtag: hashtagCount },
       '이벤트 안내': { place: '피드·릴스 설명·스토리 문구', rule: '첫 두 줄에 실제 메뉴나 상황이 드러나도록, 짧은 문장 위주로 써주세요.', defaultLen: 150, hashtag: hashtagCount },
       'SNS 문구': { place: '피드·릴스 설명·스토리 문구', rule: '첫 두 줄에 실제 메뉴나 상황이 드러나도록, 짧은 문장 위주로 써주세요.', defaultLen: 150, hashtag: hashtagCount },
       '오늘의 상황 안내': { place: '피드·릴스 설명·스토리 문구', rule: '첫 두 줄에 실제 메뉴나 상황이 드러나도록, 짧은 문장 위주로 써주세요.', defaultLen: 150, hashtag: hashtagCount },
@@ -191,11 +194,11 @@ const TEMPLATES = [
   { id: 26, title: '네이버로 바꾸기', category: '플랫폼 변환·마무리', type: 'rewrite', optionalPlatform: '네이버 플레이스',
     instruction: '이 글을 네이버 플레이스 소개란용으로 바꿔주세요. 검색해서 들어온 손님 기준, 300자 내외로요.' },
   { id: 27, title: '인스타그램으로 바꾸기', category: '플랫폼 변환·마무리', type: 'rewrite', optionalPlatform: '인스타그램',
-    instruction: '이 글을 인스타그램용으로 바꿔주세요. 첫 두 줄로 눈길을 끌고 마지막에 해시태그 8개요.' },
+    instruction: '이 글을 인스타그램용으로 바꿔주세요. 첫 두 줄로 눈길을 끌고 마지막에 관련성 높은 해시태그 5개요.' },
   { id: 28, title: '배민 메뉴설명으로', category: '플랫폼 변환·마무리', type: 'rewrite', optionalPlatform: '배민앱',
     instruction: '이 글을 배민 메뉴 설명란용 100자 이내로 줄여주세요.' },
-  { id: 29, title: '구글맵으로 바꾸기', category: '플랫폼 변환·마무리', type: 'rewrite', optionalPlatform: '구글맵',
-    instruction: '이 글을 구글맵 소개란용으로 바꿔주세요. 외국인이나 처음 오는 방문객도 이해되게, 위치와 대표 메뉴를 150자로요.' },
+  { id: 29, title: '카카오맵으로 바꾸기', category: '플랫폼 변환·마무리', type: 'rewrite', optionalPlatform: '카카오맵',
+    instruction: '이 글을 카카오맵 매장 정보용으로 바꿔주세요. 방문을 검토하는 손님이 빨리 확인할 수 있게, 위치·영업시간·대표 메뉴를 100자로요.' },
   { id: 30, title: '점검 후 최종안', category: '플랫폼 변환·마무리', type: 'rewrite', optionalPlatform: 'choose',
     instruction: '이 글이 우리 가게 특징을 충분히 담고 있는지 스스로 점검하고, 개선된 최종안을 써주세요.' },
 ]
@@ -406,7 +409,7 @@ function buildFactLines(task) {
     push('형식', task.igFormat)
     push('사진·영상 설명', task.igMediaDesc)
   }
-  if (task.platform === '구글맵' || task.platform === '네이버 플레이스' || extras.includes('구글맵') || extras.includes('네이버 플레이스')) {
+  if (task.platform === '카카오맵' || task.platform === '네이버 플레이스' || extras.includes('카카오맵') || extras.includes('네이버 플레이스')) {
     push('영업시간·휴무일', task.businessHours)
     push('위치·찾아오는 길', task.wayToFind)
     push('직접 확인한 이용 정보', task.verifiedInfo)
@@ -417,19 +420,16 @@ function buildFactLines(task) {
 function buildPlacementBlock(profile, task, platform, placement) {
   if (!placement) return ''
   const lines = [placement.rule]
-  if (platform === '구글맵' && task.googleEnglishOn) {
-    lines.push('한국어에 실제로 포함한 사실만 영어 한 줄로 옮겨주세요. 영어 상호명을 임의로 만들지 마세요. 영어 분량은 한국어 본문 목표 글자 수에 포함하지 않습니다.')
-  }
   if (platform === '인스타그램' && task.igFormat !== '스토리') {
-    const n = task.hashtagCount ?? 3
-    lines.push(`해시태그는 본문과 구획을 나누어 후보 ${n}개를 제안해주세요. 이 후보가 실제 게시를 보장하지 않으며, 게시 시 필요한 것만 사장님이 골라 사용합니다.`)
+    const n = Math.min(task.hashtagCount ?? 3, 5)
+    lines.push(`해시태그는 본문과 구획을 나누어 관련성 높은 후보 ${n}개를 제안해주세요(2025년 12월 기준 인스타그램 게시물·릴스는 최대 5개까지만 인식됩니다). 이 후보가 실제 도달·노출을 보장하지 않으며, 게시 시 필요한 것만 사장님이 골라 사용합니다.`)
   }
   return lines.join(' ')
 }
 
 export function buildRequest(profile, task) {
   const platform = task.platform
-  const placement = platform ? resolvePlacement(platform, task.type, { englishOn: task.googleEnglishOn, hashtagCount: task.hashtagCount }) : null
+  const placement = platform ? resolvePlacement(platform, task.type, { hashtagCount: task.hashtagCount }) : null
   const length = resolveLength(task, placement)
 
   const profileLines = PROFILE_FIELDS.map((f) => {
@@ -506,7 +506,7 @@ export function buildDualRequest(profile, task) {
   out += `[공통 상황]\n상황: ${(task.situation || '').trim() || '없음'}\n누구에게: ${resolveAudience(profile, task)}\n목적: ${resolveGoal(task)}\n이번 글의 말투: ${resolveTone(profile, task)}\n\n`
 
   platforms.forEach((pf, i) => {
-    const placement = resolvePlacement(pf, task.type, { englishOn: task.googleEnglishOn, hashtagCount: task.hashtagCount })
+    const placement = resolvePlacement(pf, task.type, { hashtagCount: task.hashtagCount })
     const length = resolveLength(task, placement)
     const label = CIRCLED_NUMBERS[i] || `${i + 1}`
     out += `[출력 ${label} — ${pf}${placement ? ' / ' + placement.place : ''}]\n`
@@ -569,7 +569,7 @@ export function buildRewriteRequest(profile, task, originalText, direction, extr
   } else if (direction === 'shorter') {
     out += `공백 포함 ${extra.targetLength || '미입력'}자 이내로 줄여주세요. 기존 목표 분량과 충돌하지 않게 이 길이를 최종 기준으로 삼아주세요.\n`
   } else if (direction === 'otherPlatform') {
-    const placement = resolvePlacement(extra.newPlatform, task.type === '리뷰 답변' && !extra.isReview ? '가게 소개' : task.type, { englishOn: task.googleEnglishOn, hashtagCount: task.hashtagCount })
+    const placement = resolvePlacement(extra.newPlatform, task.type === '리뷰 답변' && !extra.isReview ? '가게 소개' : task.type, { hashtagCount: task.hashtagCount })
     out += `이 글을 "${extra.newPlatform || '미입력'}"에 맞게 바꿔주세요.\n`
     if (placement) out += `작성 규칙: ${buildPlacementBlock(profile, task, extra.newPlatform, placement)}\n`
     if (extra.isReview) {
@@ -846,7 +846,6 @@ function defaultTask() {
     startDate: '', soldOutMenu: '', soldOutDate: '', resumeDate: '', closedDate: '', nextOpenDate: '',
     igFormat: '피드', igMediaDesc: '',
     businessHours: '', wayToFind: '', verifiedInfo: '',
-    googleEnglishOn: false,
     hashtagCount: 3,
     dualMode: false,
     extraPlatforms: [],
@@ -940,12 +939,6 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) 
         {!task.platform && <p className="field-error">올릴 곳을 선택해주세요.</p>}
       </div>
 
-      {task.platform === '구글맵' && (
-        <label className="check-row">
-          <input type="checkbox" checked={task.googleEnglishOn} onChange={(e) => patch({ googleEnglishOn: e.target.checked })} />
-          영어 한 줄 함께 요청하기 (한국어 사실만 옮김, 상호 임의 생성 안 함)
-        </label>
-      )}
       {task.platform === '인스타그램' && (
         <div className="field">
           <label>형식</label>
@@ -956,18 +949,18 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) 
             <>
               <label>해시태그 개수</label>
               <div className="chip-row">
-                {[0, 3, 5, 8].map((n) => (
+                {[0, 3, 5].map((n) => (
                   <button key={n} className={`chip ${task.hashtagCount === n ? 'chip-active' : ''}`} onClick={() => patch({ hashtagCount: n })}>{n}개</button>
                 ))}
               </div>
-              <p className="field-hint">8개는 강의 예시를 반영한 후보 목록이며, 실제 게시 시 필요한 만큼만 골라 쓰세요.</p>
+              <p className="field-hint">2025년 12월부터 인스타그램 게시물·릴스는 해시태그를 최대 5개까지만 인식해요. 많이 붙인다고 도달이 늘지 않으니, 내용·지역·메뉴와 직접 관련된 태그만 골라주세요.</p>
             </>
           )}
           <label>사진·영상 설명 (선택)</label>
           <textarea rows={2} value={task.igMediaDesc} onChange={(e) => patch({ igMediaDesc: e.target.value })} placeholder="보이지 않는 사진 내용은 앱이 묘사하지 않도록 요청합니다." />
         </div>
       )}
-      {(task.platform === '구글맵' || task.platform === '네이버 플레이스') && (
+      {(task.platform === '카카오맵' || task.platform === '네이버 플레이스') && (
         <div className="field">
           <label>영업시간·휴무일 (선택)</label>
           <input value={task.businessHours} onChange={(e) => patch({ businessHours: e.target.value })} placeholder="예: 11:00~21:00, 매주 월요일 휴무" />
@@ -1096,7 +1089,7 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) 
           {sensReview.flagged && <p className="field-error">손님·직원·계좌 정보로 보여요. 리뷰에서 해당 내용을 지워주세요.</p>}
           <label>리뷰가 올라온 곳</label>
           <div className="chip-row">
-            {['배민앱', '네이버 플레이스', '구글맵'].map((p) => (
+            {['배민앱', '네이버 플레이스', '카카오맵'].map((p) => (
               <button key={p} className={`chip ${task.reviewSource === p ? 'chip-active' : ''}`} onClick={() => patch({ reviewSource: p, platform: p })}>{p}</button>
             ))}
           </div>
