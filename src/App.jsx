@@ -1124,13 +1124,13 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) 
       )}
 
       <details className="dual-panel" open={task.dualMode} onToggle={(e) => { if (task.type !== '리뷰 답변') patch({ dualMode: e.target.open }) }}>
-        <summary>같은 내용으로 두 곳에 쓰기 (선택, 최대 2곳)</summary>
+        <summary>같은 내용으로 추가로 올릴 것 (선택, 최대 2곳)</summary>
         {task.type === '리뷰 답변' ? (
           <p className="field-hint">리뷰 답변은 실제 리뷰 입력이 필요해 두 곳 동시 요청과 함께 선택할 수 없어요.</p>
         ) : (
           <>
             <p className="field-hint">예: 비 오는 날 → 배민 공지 + 인스타 글</p>
-            <label>두 번째 올릴 곳</label>
+            <label>추가로 올릴 곳</label>
             <div className="chip-row">
               {PLATFORMS.filter((p) => p !== task.platform).map((p) => (
                 <button key={p} className={`chip ${task.platform2 === p ? 'chip-active' : ''}`} onClick={() => patch({ platform2: p })}>{p}</button>
