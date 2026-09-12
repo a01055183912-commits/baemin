@@ -903,6 +903,63 @@ function BaeminOfficialTips() {
   )
 }
 
+/* ---------------- 배민 공식 사장님 댓글 참고 자료 ---------------- */
+/* 출처: 배민외식업광장(ceo.baemin.com) 「사장님 댓글 관리」 화면의
+ * '자주 쓰는 문구' 예시를 그대로 옮겼습니다. (2026-09-12 확인) */
+
+const BAEMIN_REVIEW_REPLY_EXAMPLES = [
+  {
+    title: '감사 인사',
+    when: '별점 높은 리뷰, 칭찬 리뷰에',
+    example: '소중한 시간을 내어 정성스러운 리뷰를 남겨주셔서 진심으로 감사합니다! 고객님의 따뜻한 말씀 덕분에 큰 힘을 얻습니다. 언제든 다시 찾아주시면 더욱 만족스러운 경험을 드릴 수 있도록 노력하겠습니다. 감사합니다! 😊',
+  },
+  {
+    title: '친절한 대응',
+    when: '짧고 담백하게 답할 때',
+    example: '고객님의 따뜻한 말씀 덕분에 큰 힘을 얻습니다. 언제든 다시 찾아주시면 더욱 만족스러운 경험을 드릴 수 있도록 노력하겠습니다. 감사합니다!',
+  },
+  {
+    title: '고객에게 사과',
+    when: '별점 낮은 리뷰, 불만·항의 리뷰에',
+    example: '혹시라도 불편하셨던 부분이 있거나 개선이 필요하다면 언제든지 말씀해 주세요😊 다음 번에는 더욱 만족스러운 경험을 드릴 수 있도록 정성과 신경을 다하겠습니다.🙏 다시 한 번 감사드리며, 늘 행복한 식사 되시길 바랍니다!',
+  },
+]
+
+function BaeminReviewReplyTips() {
+  const [open, setOpen] = useState(false)
+  return (
+    <details className="backup-panel" open={open} onToggle={(e) => setOpen(e.target.open)}>
+      <summary>배민이 알려주는 사장님 댓글 잘 쓰는 법 (공식 예시)</summary>
+      <p className="field-hint">배민외식업광장(ceo.baemin.com) 「사장님 댓글 관리」 화면 기준입니다. 예시 문장은 배민이 실제로 보여준 것을 그대로 옮겼어요. (2026-09-12 확인, 화면과 기준은 배민이 바꿀 수 있어요)</p>
+
+      <p className="field-label" style={{ display: 'block', marginTop: 10 }}>배민 기준</p>
+      <ul className="template-list">
+        <li className="template-item" style={{ background: '#fff' }}>
+          <span className="template-instruction">댓글은 리뷰 작성일로부터 <strong>30일 이내</strong>, 최대 <strong>1,000자</strong>까지 쓸 수 있어요. 댓글을 달면 손님에게 바로 "알림"이 가요.</span>
+        </li>
+        <li className="template-item" style={{ background: '#fff' }}>
+          <span className="template-instruction">자주 답하는 말은 "자주 쓰는 문구"에 최대 <strong>5개</strong>(각 1,000자)까지 저장해두고, 다음엔 "사용하기" 한 번으로 답할 수 있어요. 이름을 안 적으면 내용 앞부분이 이름으로 보여요.</span>
+        </li>
+      </ul>
+
+      <p className="field-label" style={{ display: 'block', marginTop: 14 }}>배민이 보여준 예시 3가지</p>
+      <ul className="template-list">
+        {BAEMIN_REVIEW_REPLY_EXAMPLES.map((s) => (
+          <li key={s.title} className="template-item" style={{ background: '#fff' }}>
+            <span className="template-title">{s.title}</span>
+            <span className="template-instruction">"{s.example}"</span>
+            <span className="field-hint">→ {s.when}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="field-hint">
+        다만 배민도 강조하듯, 누구에게나 같은 문구를 그대로 쓰기보다 손님이 리뷰에 남긴 표현 한 가지(메뉴 이름, 상황 등)에
+        답하는 한 줄을 더하면 더 "우리 가게다운" 댓글이 돼요. 예: 손님이 "조합이 좋아요"라고 썼다면 "이 조합, 저희도 자신 있어요!"처럼요.
+      </p>
+    </details>
+  )
+}
+
 /* ============================================================
  * 화면 2 — 이번에 쓸 글 (RequestBuilder)
  * ============================================================ */
@@ -1184,11 +1241,10 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) 
             ))}
           </div>
           {task.reviewSource === '배민앱' && (
-            <p className="field-hint">
-              배민 "사장님 댓글"은 리뷰 작성일로부터 30일 이내, 최대 1,000자까지 쓸 수 있고, 답글을 달면 손님에게 알림이 가요.
-              배민 예시: "소중한 시간을 내어 정성스러운 리뷰를 남겨주셔서 진심으로 감사합니다! ... 언제든 다시 찾아주시면 더욱 만족스러운 경험을 드릴 수 있도록 노력하겠습니다."
-              완성된 답글은 "자주 쓰는 문구"(최대 5개)로 저장해두면 다음에는 "사용하기" 한 번으로 답할 수 있어요.
-            </p>
+            <>
+              <p className="field-hint">배민 "사장님 댓글"은 리뷰 작성일로부터 30일 이내, 최대 1,000자까지 쓸 수 있고, 답글을 달면 손님에게 알림이 가요.</p>
+              <BaeminReviewReplyTips />
+            </>
           )}
           <label>별점</label>
           <select value={task.rating} onChange={(e) => patch({ rating: e.target.value })}>
@@ -1411,7 +1467,10 @@ function QuickPicker({ profile, setTask, onGoPreview, onGoRewrite, onGoCustom })
                           <p className="field-error">손님·직원·계좌 정보로 보여요. 가게 정보만 남겨주세요.</p>
                         )}
                         {t.quickBlank.key === 'reviewText' && platform === '배민앱' && (
-                          <p className="field-hint">배민 "사장님 댓글"은 리뷰 작성일로부터 30일 이내, 최대 1,000자예요. 완성된 답글은 "자주 쓰는 문구"(최대 5개)로 저장해두면 다음엔 "사용하기" 한 번으로 답할 수 있어요.</p>
+                          <>
+                            <p className="field-hint">배민 "사장님 댓글"은 리뷰 작성일로부터 30일 이내, 최대 1,000자예요. 완성된 답글은 "자주 쓰는 문구"(최대 5개)로 저장해두면 다음엔 "사용하기" 한 번으로 답할 수 있어요.</p>
+                            <BaeminReviewReplyTips />
+                          </>
                         )}
                       </div>
                     )}
