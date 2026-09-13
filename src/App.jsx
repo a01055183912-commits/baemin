@@ -491,6 +491,9 @@ export function buildRequest(profile, task) {
   if (task.type === '리뷰 답변' && !((task.confirmedAction || '').trim())) {
     out += `- 확인된 조치가 없으므로 "확인하겠습니다" 수준까지만 쓰고 간 조절·환불·보상을 약속하지 마세요.\n`
   }
+  if (task.type === '리뷰 답변' && (task.complaint || (task.rating && Number(task.rating) <= 3))) {
+    out += `- 이 답글은 다른 손님도 함께 봅니다. 감정적으로 반응하지 말고 차분하게 써주세요.\n`
+  }
   if (platform === '배민앱' || (task.extraPlatforms || []).includes('배민앱')) {
     out += BAEMIN_REGISTRATION_RULE_LINE
   }
@@ -1246,6 +1249,7 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) 
                 {task.seriousSafety
                   ? '심각한 안전 불만이므로 재방문 권유보다 문제 확인과 해결을 우선하도록 요청해요.'
                   : '사과 → 변명 없는 인정 → 확인·개선 → 부담 없는 재방문 제안 순서로 요청해요.'}
+                {' '}이 답글은 다른 손님도 함께 보니, 감정적으로 쓰지 말고 차분하게 써달라고 함께 요청해요.
               </p>
               <label>확인된 조치 (선택, 있는 경우만 약속에 포함)</label>
               <input value={task.confirmedAction} onChange={(e) => patch({ confirmedAction: e.target.value })} placeholder="예: 다음 조리부터 간을 다시 확인하기로 함" />
