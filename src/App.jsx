@@ -498,9 +498,10 @@ export function buildRequest(profile, task) {
   out += `\n[작성 방법]\n`
   out += `1. 먼저 초안을 작성하세요.\n`
   out += `2. 우리 가게의 특징, 제공된 사실, 금지 표현, 숫자와 조건을 점검하세요.\n`
-  out += `3. 부족한 부분을 보완한 최종안을 제시하세요.\n`
-  out += `4. 답변에는 '최종안'과 '점검 요약'만 구분해 보여주세요.\n`
-  out += `5. 초안·내부 사고 과정은 출력하지 말고, 점검 요약에는 사용한 가게 특징과\n   정보 부족으로 제외한 항목을 짧게 적어주세요. 외부 사실 확인을 했다고 주장하지 마세요.\n`
+  out += `3. 위에서 정한 분량 목표(글자 수)와 "올릴 곳에 맞는 작성 규칙"에 적힌 구조(예: 줄 수 제한, 날짜·핵심이 먼저 오는 순서)를 실제로 지켰는지 다시 세어보고 확인하세요. 넘겼거나 순서가 다르면 줄이거나 순서를 바꿔 다시 쓰세요.\n`
+  out += `4. 부족한 부분을 보완한 최종안을 제시하세요.\n`
+  out += `5. 답변에는 '최종안'과 '점검 요약'만 구분해 보여주세요.\n`
+  out += `6. 초안·내부 사고 과정은 출력하지 말고, 점검 요약에는 사용한 가게 특징과\n   정보 부족으로 제외한 항목, 그리고 최종 글자 수를 짧게 적어주세요. 외부 사실 확인을 했다고 주장하지 마세요.\n`
 
   return out
 }
@@ -553,7 +554,9 @@ export function buildRewriteRequest(profile, task, originalText, direction, extr
     out += `공백 포함 ${extra.targetLength || '미입력'}자 이내로 줄여주세요. 기존 목표 분량과 충돌하지 않게 이 길이를 최종 기준으로 삼아주세요.\n`
   } else if (direction === 'otherPlatform') {
     const placement = resolvePlacement(extra.newPlatform, task.type === '리뷰 답변' && !extra.isReview ? '가게 소개' : task.type, { englishOn: task.googleEnglishOn, hashtagCount: task.hashtagCount })
+    const newLength = (placement && placement.defaultLen) || 100
     out += `이 글을 "${extra.newPlatform || '미입력'}"에 맞게 바꿔주세요.\n`
+    out += `목표 분량: 공백·줄바꿈 포함 ${newLength}자 이내\n`
     if (placement) out += `작성 규칙: ${buildPlacementBlock(profile, task, extra.newPlatform, placement)}\n`
     if (extra.isReview) {
       out += `실제 리뷰: ${extra.reviewText || '미입력'}\n확인된 조치: ${extra.confirmedAction || '미입력'}\n`
@@ -569,7 +572,7 @@ export function buildRewriteRequest(profile, task, originalText, direction, extr
   if (task.platform === '배민앱' || extra.newPlatform === '배민앱') {
     out += BAEMIN_REGISTRATION_RULE_LINE
   }
-  out += `\n[답변 방식]\n최종안만 제시하고, 무엇을 바꿨는지 한 줄로 점검 요약을 붙여주세요.\n`
+  out += `\n[답변 방식]\n먼저 다시 쓰고, 위에 적힌 목표 분량과 작성 규칙(줄 수 제한, 날짜·핵심이 먼저 오는 순서 등)을 실제로 지켰는지 다시 세어보고 확인한 뒤 최종안을 확정하세요. 넘겼거나 순서가 다르면 줄이거나 순서를 바꿔 다시 쓰세요. 최종안만 제시하고, 무엇을 바꿨는지와 최종 글자 수를 한 줄로 점검 요약에 붙여주세요.\n`
 
   return out
 }
