@@ -182,10 +182,10 @@ const TEMPLATES = [
     instruction: '날이 많이 추워졌습니다. 따뜻한 메뉴를 권하는 짧은 글을 써주세요.', quickBlank: null, defaultSituation: '많이 추워진 날씨' },
   { id: 18, title: '여름 한정 메뉴', category: '날씨·계절·상황', type: '오늘의 상황 안내', optionalPlatform: null,
     instruction: '여름 한정으로 [메뉴]를 판매합니다. 지금 아니면 못 먹는다는 느낌을 과장 없이 살려주세요.', quickBlank: { key: 'menuName', label: '여름 한정 메뉴', placeholder: '예: 냉국밥' }, defaultSituation: '여름 한정 판매' },
-  { id: 19, title: '명절 연휴 안내', category: '날씨·계절·상황', type: '오늘의 상황 안내', optionalPlatform: null,
-    instruction: '명절 연휴 영업 일정을 정중하게 안내하는 문구를 써주세요.', quickBlank: { key: 'quickNote', label: '연휴 일정', placeholder: '예: 9/14(월)~9/16(수) 휴무, 9/17(목) 정상영업' } },
+  { id: 19, title: '휴무 안내', category: '날씨·계절·상황', type: '오늘의 상황 안내', optionalPlatform: null,
+    instruction: '휴무 일정을 손님이 서운하지 않게, 다음 영업일 안내까지 포함해서 안내하는 문구를 써주세요.', quickBlank: { key: 'quickNote', label: '휴무 일정 (명절 연휴도 이 칸에)', placeholder: '예: 9/14(월)~9/16(수) 휴무, 9/17(목) 정상영업' } },
   { id: 20, title: '오늘 마감 안내', category: '날씨·계절·상황', type: '오늘의 상황 안내', optionalPlatform: null,
-    instruction: '오늘 [메뉴]가 일찍 마감됐습니다. 아쉬워하실 손님께 드리는 안내문을 써주세요.', quickBlank: { key: 'menuName', label: '오늘 마감된 메뉴', placeholder: '예: 수육백반' }, defaultSituation: '메뉴 조기 마감' },
+    instruction: '오늘 [메뉴]가 일찍 마감됐습니다. 아쉬워하실 손님께 드리는 정중한 안내문을 써주세요.', quickBlank: { key: 'menuName', label: '오늘 마감된 메뉴', placeholder: '예: 수육백반' }, defaultSituation: '메뉴 조기 마감' },
 
   // E. 리뷰·고객 응대
   { id: 21, title: '좋은 리뷰 답글', category: '리뷰·고객 응대', type: '리뷰 답변', optionalPlatform: null,
@@ -944,6 +944,38 @@ function BaeminReviewReplyTips() {
   )
 }
 
+/* ---------------- 배민아카데미 「자주 오는 상황 여섯 가지」 ---------------- */
+/* 세션 5 강의 자료의 여섯 가지 상황·키워드·예시 문구를 그대로 옮겼습니다.
+ * 각 상황은 위 30개 예시 문장 중 해당 카드로 이어집니다. */
+
+const COMMON_SITUATIONS = [
+  { situation: '신메뉴 출시', keyword: '궁금해지게', example: '이번 주부터 [메뉴명]을 새로 시작합니다. 처음 드시는 분도 궁금해지도록 배민 공지 100자', card: '신메뉴 공지' },
+  { situation: '주말 이벤트', keyword: '헷갈리지 않게', example: '행사명[ ] 기간[ ] 혜택[ ] 조건[ ]. 이 넷을 헷갈리지 않게 3줄로 정리한 안내문', card: '주말 이벤트 안내' },
+  { situation: '계절 메뉴', keyword: '지금 아니면', example: '여름 한정 [메뉴]. 지금 아니면 못 먹는다는 느낌을 과장 없이', card: '여름 한정 메뉴' },
+  { situation: '재료 소진', keyword: '정중하게', example: '오늘 [메뉴]가 조기 마감. 아쉬워하실 손님께 드리는 정중한 안내문', card: '오늘 마감 안내' },
+  { situation: '휴무 안내', keyword: '서운하지 않게', example: '[날짜] 휴무. 서운하지 않게, 다음 영업일 안내까지 포함해서', card: '휴무 안내' },
+  { situation: '단골 감사', keyword: '낯간지럽지 않게', example: '20년 단골 손님께 드리는 짧은 감사 인사를 SNS용으로', card: '단골 감사 인사' },
+]
+
+function CommonSituationsTips() {
+  const [open, setOpen] = useState(false)
+  return (
+    <details className="backup-panel" open={open} onToggle={(e) => setOpen(e.target.open)}>
+      <summary>배민아카데미가 알려주는 자주 오는 상황 6가지</summary>
+      <p className="field-hint">강의 자료 기준입니다. [ ] 안은 우리 가게 것으로 바꿔서 씁니다. 아래 상황마다 위 목록에서 같은 이름의 카드를 고르면 이 요령이 그대로 반영돼요.</p>
+      <ul className="template-list">
+        {COMMON_SITUATIONS.map((s) => (
+          <li key={s.situation} className="template-item" style={{ background: '#fff' }}>
+            <span className="template-title">{s.situation} — {s.keyword}</span>
+            <span className="template-instruction">"{s.example}"</span>
+            <span className="field-hint">→ 위 목록의 "{s.card}" 카드</span>
+          </li>
+        ))}
+      </ul>
+    </details>
+  )
+}
+
 /* ============================================================
  * 화면 2 — 이번에 쓸 글 (RequestBuilder)
  * ============================================================ */
@@ -1467,6 +1499,8 @@ function QuickPicker({ profile, setTask, onGoPreview, onGoRewrite, onGoCustom })
           </li>
         ))}
       </ul>
+
+      <CommonSituationsTips />
 
       <button className="btn-ghost" onClick={onGoCustom}>원하는 상황이 없나요? 직접 만들기 →</button>
     </div>
