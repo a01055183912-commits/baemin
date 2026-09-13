@@ -8,18 +8,18 @@ import React, { useState, useMemo } from 'react'
 /* ---------------- 기본 데이터 ---------------- */
 
 const PROFILE_FIELDS = [
-  { key: 'name', no: 1, label: '가게명', required: true, bad: '동네 밥집', good: '할매손 돼지국밥' },
-  { key: 'category', no: 2, label: '업종', required: false, bad: '음식점', good: '돼지국밥 전문점' },
-  { key: 'location', no: 3, label: '위치·상권', required: false, bad: '역 근처', good: '부산 서면, 평일 점심 직장인이 많은 상권' },
-  { key: 'menuPrice', no: 4, label: '대표메뉴·가격', required: true, bad: '국밥 등', good: '얼큰돼지국밥 10,000원, 수육백반 13,000원' },
-  { key: 'menuFeature', no: 5, label: '메뉴의 특징', required: false, important: true, bad: '정성 가득한 맛', good: '매일 아침 직접 끓이는 사골 육수' },
-  { key: 'customer', no: 6, label: '주요 고객', required: false, bad: '누구나', good: '평일 점심 직장인, 주말 가족 손님' },
-  { key: 'strength', no: 7, label: '우리 가게 강점', required: true, important: true, bad: '맛과 서비스', good: '20년 한자리에서 같은 재료로 끓이는 국밥' },
-  { key: 'priceRange', no: 8, label: '가격대', required: false, bad: '저렴해요', good: '9,000~13,000원' },
-  { key: 'mood', no: 9, label: '분위기', required: false, bad: '좋아요', good: '오래됐지만 깨끗하고 혼밥도 편안한 곳' },
-  { key: 'philosophy', no: 10, label: '사장님의 철학', required: false, bad: '열심히 합니다', good: '매일 먹어도 부담 없는 한 그릇' },
-  { key: 'tone', no: 11, label: '쓰고 싶은 말투', required: false, bad: '알아서 잘', good: '과장 없이 담백하고 정감 있게, 사장님이 직접 말하듯' },
-  { key: 'avoid', no: 12, label: '쓰지 않을 표현', required: true, important: true, bad: '과장 금지', good: '최고, 대박, 인생맛집, 국내 유일, 미친 맛' },
+  { key: 'name', no: 1, label: '가게명', required: true, tip: '상호 + 손님들이 부르는 이름', bad: '동네 밥집', good: '할매손 돼지국밥' },
+  { key: 'category', no: 2, label: '업종', required: false, tip: '넓게 말고 좁게', bad: '음식점', good: '돼지국밥 전문점' },
+  { key: 'location', no: 3, label: '위치·상권', required: false, tip: '동네 이름 + 상권의 성격', bad: '역 근처', good: '부산 서면, 평일 점심 직장인이 많은 상권' },
+  { key: 'menuPrice', no: 4, label: '대표메뉴·가격', required: true, tip: '2~3개, 가격 포함', bad: '국밥 등', good: '얼큰돼지국밥 10,000원, 수육백반 13,000원' },
+  { key: 'menuFeature', no: 5, label: '메뉴의 특징', required: false, important: true, tip: '형용사 대신 사실', bad: '정성 가득한 맛', good: '매일 아침 직접 끓이는 사골 육수' },
+  { key: 'customer', no: 6, label: '주요 고객', required: false, tip: '시간대별로 나눠서', bad: '누구나', good: '평일 점심 직장인, 주말 가족 손님' },
+  { key: 'strength', no: 7, label: '우리 가게 강점', required: true, important: true, tip: '남이 흉내 못 낼 것, 숫자', bad: '맛과 서비스', good: '20년 한자리에서 같은 재료로 끓이는 국밥' },
+  { key: 'priceRange', no: 8, label: '가격대', required: false, tip: '최저~최고', bad: '저렴해요', good: '9,000~13,000원' },
+  { key: 'mood', no: 9, label: '분위기', required: false, tip: '손님이 느끼는 공간감', bad: '좋아요', good: '오래됐지만 깨끗하고 혼밥도 편안한 곳' },
+  { key: 'philosophy', no: 10, label: '사장님의 철학', required: false, tip: '왜 이 장사를 하는지 한 문장', bad: '열심히 합니다', good: '매일 먹어도 부담 없는 한 그릇' },
+  { key: 'tone', no: 11, label: '쓰고 싶은 말투', required: false, tip: '형용사 2~3개 + 누가 말하는지', bad: '알아서 잘', good: '과장 없이 담백하고 정감 있게, 사장님이 직접 말하듯' },
+  { key: 'avoid', no: 12, label: '쓰지 않을 표현', required: true, important: true, tip: '미리 금지할 단어', bad: '과장 금지', good: '최고, 대박, 인생맛집, 국내 유일, 미친 맛' },
 ]
 
 const CORE_KEYS = ['name', 'menuPrice', 'strength', 'avoid']
@@ -65,7 +65,7 @@ const PLATFORMS = ['배민앱', '네이버 플레이스', '구글맵', '인스�
  * 실제 등록 제한). 2026-09-12 공식 화면 기준 — 변경될 수 있어 최종 등록 전
  * 배민셀프서비스에서 한 번 더 확인해야 합니다. */
 const BAEMIN_REGISTRATION_RULE_LINE =
-  '- 배민 등록 기준상 다음 표현이 있으면 저장 자체가 거부됩니다: 전화 주문·계좌이체 등 배민 외부 결제 유도, 사장님 전화번호 등 개인정보, 네이버·요기요 등 타사 서비스 언급이나 외부 링크·SNS 홍보 문구, "재주문율 1위"처럼 확인할 수 없는 순위·통계 주장, 다른 가게나 고객에 대한 비방·욕설. 이런 표현은 쓰지 마세요.\n'
+  '- 배민 등록 기준상 다음 표현이 있으면 저장 자체가 거부됩니다: 전화 주문·계좌이체 등 배민 외부 결제 유도, 사장님 전화번호 등 개인정보, 네이버·요기요 등 타사 서비스 언급이나 외부 링크·SNS 홍보 문구, "재주문율 1위"처럼 확인할 수 없는 순위·통계 주장, 다른 가게나 고객에 대한 비방·욕설, 배달팁을 현장에서 직접 달라는 요청. 이런 표현은 쓰지 마세요.\n'
 
 const TONE_OPTIONS = [
   '소개서 말투', '담백하고 정감 있게', '친근하게', '차분하고 정중하게', '사장님이 직접 말하듯', '직접 입력',
@@ -725,6 +725,7 @@ function StoreProfile({ profile, setProfile, onGoNext }) {
         <label htmlFor={`profile-${f.key}`}>
           <span className="field-no">{f.no}</span>
           <span className="field-label">{f.label}</span>
+          {f.tip && <span className="field-tip">— {f.tip}</span>}
           {f.required && <span className="badge badge-required">필수</span>}
           {f.important && <span className="badge badge-important">가장 중요한 칸</span>}
         </label>
@@ -827,6 +828,15 @@ const BAEMIN_WRITING_STYLES = [
   { title: '5. 꼭 알려야 하는 주요 공지', example: '첫 여름 휴가를 떠나요. 8월 16일부터 19일까지 알차게 재충전하고 돌아올게요. 주문 고객님들은 휴무 날짜를 참고해주세요.', link: '오늘의 상황 · 휴무 안내' },
 ]
 
+const BAEMIN_REGISTRATION_BANS = [
+  { title: '전화 주문·계좌이체 유도', detail: '배민을 통하지 않은 직접 결제 유도(예: "만나서 결제", "계좌번호", "전화 주문"), 배달 외 목적의 개인정보 이용' },
+  { title: '개인정보', detail: '사장님 전화번호, 안심번호 해제 요청 등 개인정보를 포함·요구하는 문구, 타인의 개인정보 도용' },
+  { title: '타사 서비스 언급', detail: '네이버·요기요 등 다른 서비스 언급, SNS 홍보 문구, 외부 링크' },
+  { title: '사실 확인이 어려운 내용', detail: '"재주문율 1위"처럼 확인할 수 없는 순위·통계 주장' },
+  { title: '비방·불쾌감', detail: '다른 가게·고객 비방, 욕설, 의미가 확인되지 않은 신조어, 성적 표현, 정치적 이슈' },
+  { title: '기타', detail: '배민 운영진 사칭, 행운의 편지, 스팸, 가게 소개와 직접 관련 없는 내용, 배달팁 현장 지불 요청' },
+]
+
 function BaeminOfficialTips() {
   const [open, setOpen] = useState(false)
   return (
@@ -857,12 +867,16 @@ function BaeminOfficialTips() {
       </ul>
       <p className="field-hint">500자 안에 다 넣을 수 없어요. 우리 가게에 맞는 것 두세 개만 골라 쓰면 충분해요.</p>
 
-      <p className="field-label" style={{ display: 'block', marginTop: 14 }}>등록 자체가 안 되는 표현 (배민 공식 기준)</p>
-      <p className="field-hint">
-        전화 주문·계좌이체 유도, 사장님 전화번호 같은 개인정보, 네이버·요기요 등 타사 서비스 언급이나 외부 링크,
-        "재주문율 1위"처럼 확인할 수 없는 순위·통계 주장, 다른 가게·고객 비방은 저장 시 자동으로 걸러져 등록되지 않아요.
-        소개서 12번(쓰지 않을 표현)에 미리 적어두면 이런 표현이 처음부터 안 나와요.
-      </p>
+      <p className="field-label" style={{ display: 'block', marginTop: 14 }}>등록 자체가 안 되는 표현 (배민 공식 기준 전체)</p>
+      <p className="field-hint">아래에 해당하는 표현이 있으면 "적용"을 눌러도 저장 자체가 안 돼요. 소개서 12번(쓰지 않을 표현)에 미리 적어두면 이런 표현이 처음부터 안 나와요.</p>
+      <ul className="template-list">
+        {BAEMIN_REGISTRATION_BANS.map((b) => (
+          <li key={b.title} className="template-item" style={{ background: '#fff' }}>
+            <span className="template-title">{b.title}</span>
+            <span className="field-hint">{b.detail}</span>
+          </li>
+        ))}
+      </ul>
       <p className="field-hint">가게 소개는 최대 500자, 적용하면 자동 승인되어 바로 노출돼요.</p>
     </details>
   )
@@ -2071,6 +2085,7 @@ body {
 .field > label, .field-group > label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 6px; }
 .field-no { display: inline-block; width: 20px; color: #1A7A77; font-weight: 800; }
 .field-label { margin-right: 6px; }
+.field-tip { font-weight: 400; color: #4A8480; font-size: 12.5px; margin-right: 6px; white-space: normal; }
 .badge { font-size: 11px; border-radius: 999px; padding: 2px 8px; margin-left: 6px; font-weight: 700; }
 .badge-required { background: #FFE3E3; color: #B3261E; }
 .badge-important { background: #E4FBF9; color: #0F6B67; }
