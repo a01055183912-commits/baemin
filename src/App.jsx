@@ -736,7 +736,6 @@ function StoreProfile({ profile, setProfile, onGoNext }) {
           id={`profile-${f.key}`}
           value={val}
           rows={f.key === 'avoid' || f.key === 'menuFeature' ? 2 : 1}
-          placeholder={`${f.bad}(X) → ${f.good}(O)`}
           onChange={(e) => updateField(f.key, e.target.value)}
         />
         <p className="field-hint">예시: {f.bad}(X) → {f.good}(O)</p>
