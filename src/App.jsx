@@ -9,16 +9,24 @@ import React, { useState, useMemo } from 'react'
 
 const PROFILE_FIELDS = [
   { key: 'name', no: 1, label: '가게명', required: true, tip: '상호 + 손님들이 부르는 이름', bad: '동네 밥집', good: '할매손 돼지국밥' },
-  { key: 'category', no: 2, label: '업종', required: false, tip: '넓게 말고 좁게', bad: '음식점', good: '돼지국밥 전문점' },
-  { key: 'location', no: 3, label: '위치·상권', required: false, tip: '동네 이름 + 상권의 성격', bad: '역 근처', good: '부산 서면, 평일 점심 직장인이 많은 상권' },
+  { key: 'category', no: 2, label: '업종', required: false, tip: '넓게 말고 좁게', bad: '음식점', good: '돼지국밥 전문점',
+    examples: ['수제버거 전문점', '제철 밑반찬 백반집', '동네 빵집(베이커리)'] },
+  { key: 'location', no: 3, label: '위치·상권', required: false, tip: '동네 이름 + 상권의 성격', bad: '역 근처', good: '부산 서면, 평일 점심 직장인이 많은 상권',
+    examples: ['주택가 골목, 저녁 배달 위주', '대학가, 자취생·2차 술자리 손님 많음', '아파트 단지 앞, 가족 단위 주문 많음'] },
   { key: 'menuPrice', no: 4, label: '대표메뉴·가격', required: true, tip: '2~3개, 가격 포함', bad: '국밥 등', good: '얼큰돼지국밥 10,000원, 수육백반 13,000원' },
-  { key: 'menuFeature', no: 5, label: '메뉴의 특징', required: false, important: true, tip: '형용사 대신 사실', bad: '정성 가득한 맛', good: '매일 아침 직접 끓이는 사골 육수' },
-  { key: 'customer', no: 6, label: '주요 고객', required: false, tip: '시간대별로 나눠서', bad: '누구나', good: '평일 점심 직장인, 주말 가족 손님' },
+  { key: 'menuFeature', no: 5, label: '메뉴의 특징', required: false, important: true, tip: '형용사 대신 사실', bad: '정성 가득한 맛', good: '매일 아침 직접 끓이는 사골 육수',
+    examples: ['국내산 돼지고기만 사용, 냉동 없이 당일 손질', '매장에서 직접 반죽하는 도우', '조미료 없이 재료 본연의 맛으로 조리'] },
+  { key: 'customer', no: 6, label: '주요 고객', required: false, tip: '시간대별로 나눠서', bad: '누구나', good: '평일 점심 직장인, 주말 가족 손님',
+    examples: ['야식 찾는 20대, 혼술·혼밥 손님', '아이 동반 가족, 유모차 이용 가능', '운동 후 들르는 헬스장 회원'] },
   { key: 'strength', no: 7, label: '우리 가게 강점', required: true, important: true, tip: '남이 흉내 못 낼 것, 숫자', bad: '맛과 서비스', good: '20년 한자리에서 같은 재료로 끓이는 국밥' },
-  { key: 'priceRange', no: 8, label: '가격대', required: false, tip: '최저~최고', bad: '저렴해요', good: '9,000~13,000원' },
-  { key: 'mood', no: 9, label: '분위기', required: false, tip: '손님이 느끼는 공간감', bad: '좋아요', good: '오래됐지만 깨끗하고 혼밥도 편안한 곳' },
-  { key: 'philosophy', no: 10, label: '사장님의 철학', required: false, tip: '왜 이 장사를 하는지 한 문장', bad: '열심히 합니다', good: '매일 먹어도 부담 없는 한 그릇' },
-  { key: 'tone', no: 11, label: '쓰고 싶은 말투', required: false, tip: '형용사 2~3개 + 누가 말하는지', bad: '알아서 잘', good: '과장 없이 담백하고 정감 있게, 사장님이 직접 말하듯' },
+  { key: 'priceRange', no: 8, label: '가격대', required: false, tip: '최저~최고', bad: '저렴해요', good: '9,000~13,000원',
+    examples: ['6,000~15,000원(세트 기준)', '1인 8,000원대', '2인 기준 20,000~25,000원'] },
+  { key: 'mood', no: 9, label: '분위기', required: false, tip: '손님이 느끼는 공간감', bad: '좋아요', good: '오래됐지만 깨끗하고 혼밥도 편안한 곳',
+    examples: ['좌석 간격 넓어 단체 모임에도 좋음', '조용하고 아늑해 데이트 코스로도 인기', '통유리로 햇살 잘 드는 밝은 공간'] },
+  { key: 'philosophy', no: 10, label: '사장님의 철학', required: false, tip: '왜 이 장사를 하는지 한 문장', bad: '열심히 합니다', good: '매일 먹어도 부담 없는 한 그릇',
+    examples: ['빠르게 말고 정직하게, 원가 아끼지 않기', '손님을 가족처럼 생각하고 만듭니다', '한 번을 팔아도 제대로 만들자는 마음'] },
+  { key: 'tone', no: 11, label: '쓰고 싶은 말투', required: false, tip: '형용사 2~3개 + 누가 말하는지', bad: '알아서 잘', good: '과장 없이 담백하고 정감 있게, 사장님이 직접 말하듯',
+    examples: ['발랄하고 친근하게, 젊은 직원이 말하듯', '깔끔하고 정중하게, 격식 있는 존댓말로', '짧고 확실하게, 군더더기 없이'] },
   { key: 'avoid', no: 12, label: '쓰지 않을 표현', required: true, important: true, tip: '미리 금지할 단어', bad: '과장 금지', good: '최고, 대박, 인생맛집, 국내 유일, 미친 맛' },
 ]
 
@@ -740,6 +748,16 @@ function StoreProfile({ profile, setProfile, onGoNext }) {
           onChange={(e) => updateField(f.key, e.target.value)}
         />
         <p className="field-hint">예시: {f.bad}(X) → {f.good}(O)</p>
+        {f.examples && f.examples.length > 0 && (
+          <>
+            <p className="field-hint">자주 쓰는 예시 (눌러서 바로 넣기)</p>
+            <div className="chip-row">
+              {f.examples.map((ex) => (
+                <button key={ex} type="button" className="chip chip-example" onClick={() => updateField(f.key, ex)}>{ex}</button>
+              ))}
+            </div>
+          </>
+        )}
         {f.required && empty && <p className="field-error">필수 항목이에요. 공백만으로는 진행할 수 없어요.</p>}
         {sensitive && (
           <p className="field-error">손님·직원·계좌 정보는 넣지 마세요. 소개서에는 가게 정보만 들어갑니다. ({sensitive.map((s) => s.type).join(', ')})</p>
@@ -2103,6 +2121,7 @@ input:focus, textarea:focus, select:focus, button:focus { outline: 3px solid #9b
 .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
 .chip { font-size: 14px; padding: 10px 14px; border-radius: 999px; border: 1px solid #ccc; background: #fff; min-height: 40px; color: #1A1A1A; }
 .chip-active { background: #2AC1BC; border-color: #2AC1BC; color: #04302E; font-weight: 700; }
+.chip-example { white-space: normal; word-break: keep-all; text-align: left; max-width: 100%; background: #F7FEFE; border-style: dashed; border-color: #8FD9D4; font-size: 13px; padding: 8px 12px; min-height: auto; }
 .check-row { display: flex; align-items: center; gap: 8px; font-size: 14px; margin: 6px 0; }
 .check-row input { width: auto; margin: 0; }
 .btn { font-size: 16px; padding: 12px 16px; border-radius: 10px; border: 1px solid #2AC1BC; min-height: 44px; font-weight: 700; }
