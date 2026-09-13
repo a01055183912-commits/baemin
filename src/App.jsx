@@ -9,24 +9,16 @@ import React, { useState, useMemo } from 'react'
 
 const PROFILE_FIELDS = [
   { key: 'name', no: 1, label: '가게명', required: true, tip: '상호 + 손님들이 부르는 이름', bad: '동네 밥집', good: '할매손 돼지국밥' },
-  { key: 'category', no: 2, label: '업종', required: false, tip: '넓게 말고 좁게', bad: '음식점', good: '돼지국밥 전문점',
-    examples: ['수제버거 전문점', '제철 밑반찬 백반집', '동네 빵집(베이커리)'] },
-  { key: 'location', no: 3, label: '위치·상권', required: false, tip: '동네 이름 + 상권의 성격', bad: '역 근처', good: '부산 서면, 평일 점심 직장인이 많은 상권',
-    examples: ['주택가 골목, 저녁 배달 위주', '대학가, 자취생·2차 술자리 손님 많음', '아파트 단지 앞, 가족 단위 주문 많음'] },
+  { key: 'category', no: 2, label: '업종', required: false, tip: '넓게 말고 좁게', bad: '음식점', good: '돼지국밥 전문점' },
+  { key: 'location', no: 3, label: '위치·상권', required: false, tip: '동네 이름 + 상권의 성격', bad: '역 근처', good: '부산 서면, 평일 점심 직장인이 많은 상권' },
   { key: 'menuPrice', no: 4, label: '대표메뉴·가격', required: true, tip: '2~3개, 가격 포함', bad: '국밥 등', good: '얼큰돼지국밥 10,000원, 수육백반 13,000원' },
-  { key: 'menuFeature', no: 5, label: '메뉴의 특징', required: false, important: true, tip: '형용사 대신 사실', bad: '정성 가득한 맛', good: '매일 아침 직접 끓이는 사골 육수',
-    examples: ['국내산 돼지고기만 사용, 냉동 없이 당일 손질', '매장에서 직접 반죽하는 도우', '조미료 없이 재료 본연의 맛으로 조리'] },
-  { key: 'customer', no: 6, label: '주요 고객', required: false, tip: '시간대별로 나눠서', bad: '누구나', good: '평일 점심 직장인, 주말 가족 손님',
-    examples: ['야식 찾는 20대, 혼술·혼밥 손님', '아이 동반 가족, 유모차 이용 가능', '운동 후 들르는 헬스장 회원'] },
+  { key: 'menuFeature', no: 5, label: '메뉴의 특징', required: false, important: true, tip: '형용사 대신 사실', bad: '정성 가득한 맛', good: '매일 아침 직접 끓이는 사골 육수' },
+  { key: 'customer', no: 6, label: '주요 고객', required: false, tip: '시간대별로 나눠서', bad: '누구나', good: '평일 점심 직장인, 주말 가족 손님' },
   { key: 'strength', no: 7, label: '우리 가게 강점', required: true, important: true, tip: '남이 흉내 못 낼 것, 숫자', bad: '맛과 서비스', good: '20년 한자리에서 같은 재료로 끓이는 국밥' },
-  { key: 'priceRange', no: 8, label: '가격대', required: false, tip: '최저~최고', bad: '저렴해요', good: '9,000~13,000원',
-    examples: ['6,000~15,000원(세트 기준)', '1인 8,000원대', '2인 기준 20,000~25,000원'] },
-  { key: 'mood', no: 9, label: '분위기', required: false, tip: '손님이 느끼는 공간감', bad: '좋아요', good: '오래됐지만 깨끗하고 혼밥도 편안한 곳',
-    examples: ['좌석 간격 넓어 단체 모임에도 좋음', '조용하고 아늑해 데이트 코스로도 인기', '통유리로 햇살 잘 드는 밝은 공간'] },
-  { key: 'philosophy', no: 10, label: '사장님의 철학', required: false, tip: '왜 이 장사를 하는지 한 문장', bad: '열심히 합니다', good: '매일 먹어도 부담 없는 한 그릇',
-    examples: ['빠르게 말고 정직하게, 원가 아끼지 않기', '손님을 가족처럼 생각하고 만듭니다', '한 번을 팔아도 제대로 만들자는 마음'] },
-  { key: 'tone', no: 11, label: '쓰고 싶은 말투', required: false, tip: '형용사 2~3개 + 누가 말하는지', bad: '알아서 잘', good: '과장 없이 담백하고 정감 있게, 사장님이 직접 말하듯',
-    examples: ['발랄하고 친근하게, 젊은 직원이 말하듯', '깔끔하고 정중하게, 격식 있는 존댓말로', '짧고 확실하게, 군더더기 없이'] },
+  { key: 'priceRange', no: 8, label: '가격대', required: false, tip: '최저~최고', bad: '저렴해요', good: '9,000~13,000원' },
+  { key: 'mood', no: 9, label: '분위기', required: false, tip: '손님이 느끼는 공간감', bad: '좋아요', good: '오래됐지만 깨끗하고 혼밥도 편안한 곳' },
+  { key: 'philosophy', no: 10, label: '사장님의 철학', required: false, tip: '왜 이 장사를 하는지 한 문장', bad: '열심히 합니다', good: '매일 먹어도 부담 없는 한 그릇' },
+  { key: 'tone', no: 11, label: '쓰고 싶은 말투', required: false, tip: '형용사 2~3개 + 누가 말하는지', bad: '알아서 잘', good: '과장 없이 담백하고 정감 있게, 사장님이 직접 말하듯' },
   { key: 'avoid', no: 12, label: '쓰지 않을 표현', required: true, important: true, tip: '미리 금지할 단어', bad: '과장 금지', good: '최고, 대박, 인생맛집, 국내 유일, 미친 맛' },
 ]
 
@@ -631,31 +623,6 @@ export function validateBackup(rawText) {
   return { valid: true, data: store }
 }
 
-/* 자주 쓰는 예시를 눌러서 바로 넣는 공용 칩 목록 */
-function ExampleChips({ examples, onPick }) {
-  if (!examples || examples.length === 0) return null
-  return (
-    <>
-      <p className="field-hint">자주 쓰는 예시 (눌러서 바로 넣기)</p>
-      <div className="chip-row">
-        {examples.map((ex) => (
-          <button key={ex} type="button" className="chip chip-example" onClick={() => onPick(ex)}>{ex}</button>
-        ))}
-      </div>
-    </>
-  )
-}
-
-function parseMenuNames(menuPriceText) {
-  if (!menuPriceText) return []
-  // "10,000원"처럼 숫자 안의 천 단위 구분 쉼표는 항목을 나누는 쉼표와 구분해야 함
-  const normalized = menuPriceText.replace(/(\d),(\d{3})/g, '$1$2')
-  return normalized
-    .split(/[,\n]/)
-    .map((s) => s.trim().replace(/[\d,]+\s*원.*$/, '').trim())
-    .filter(Boolean)
-}
-
 /* ============================================================
  * 화면 1 — 우리 가게 소개서 (StoreProfile)
  * ============================================================ */
@@ -773,7 +740,6 @@ function StoreProfile({ profile, setProfile, onGoNext }) {
           onChange={(e) => updateField(f.key, e.target.value)}
         />
         <p className="field-hint">예시: {f.bad}(X) → {f.good}(O)</p>
-        <ExampleChips examples={f.examples} onPick={(ex) => updateField(f.key, ex)} />
         {f.required && empty && <p className="field-error">필수 항목이에요. 공백만으로는 진행할 수 없어요.</p>}
         {sensitive && (
           <p className="field-error">손님·직원·계좌 정보는 넣지 마세요. 소개서에는 가게 정보만 들어갑니다. ({sensitive.map((s) => s.type).join(', ')})</p>
@@ -1072,10 +1038,7 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) 
           <p className="field-error">소개서의 "주요 고객" 칸이 비어 있어요. 소개서에서 채우거나 다른 항목을 골라주세요.</p>
         )}
         {task.audience === '직접 입력' && (
-          <>
-            <input value={task.audienceCustom} onChange={(e) => patch({ audienceCustom: e.target.value })} placeholder="예: 야식 찾는 20대" />
-            <ExampleChips examples={['야식 찾는 20대', '운동 후 들르는 헬스장 회원', '단체 회식 손님']} onPick={(ex) => patch({ audienceCustom: ex })} />
-          </>
+          <input value={task.audienceCustom} onChange={(e) => patch({ audienceCustom: e.target.value })} placeholder="예: 야식 찾는 20대" />
         )}
       </div>
 
@@ -1085,10 +1048,7 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) 
           {GOAL_OPTIONS.map((g) => <option key={g} value={g}>{g}</option>)}
         </select>
         {task.goal === '직접 입력' && (
-          <>
-            <input value={task.goalCustom} onChange={(e) => patch({ goalCustom: e.target.value })} placeholder="예: 재방문을 약속하지 않고 신뢰만 전달" />
-            <ExampleChips examples={['재방문을 약속하지 않고 신뢰만 전달', '주문 전 궁금증을 미리 해소', '첫 방문 손님의 부담을 줄이기']} onPick={(ex) => patch({ goalCustom: ex })} />
-          </>
+          <input value={task.goalCustom} onChange={(e) => patch({ goalCustom: e.target.value })} placeholder="예: 재방문을 약속하지 않고 신뢰만 전달" />
         )}
       </div>
 
@@ -1127,27 +1087,22 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) 
           )}
           <label>사진·영상 설명 (선택)</label>
           <textarea rows={2} value={task.igMediaDesc} onChange={(e) => patch({ igMediaDesc: e.target.value })} placeholder="보이지 않는 사진 내용은 앱이 묘사하지 않도록 요청합니다." />
-          <ExampleChips examples={['매장 통유리 너머로 보이는 오픈 주방', '접시 위 완성된 메뉴 클로즈업', '포장 박스에 담긴 모습']} onPick={(ex) => patch({ igMediaDesc: ex })} />
         </div>
       )}
       {(task.platform === '구글맵' || task.platform === '네이버 플레이스') && (
         <div className="field">
           <label>영업시간·휴무일 (선택)</label>
           <input value={task.businessHours} onChange={(e) => patch({ businessHours: e.target.value })} placeholder="예: 11:00~21:00, 매주 월요일 휴무" />
-          <ExampleChips examples={['11:00~21:00, 매주 월요일 휴무', '10:30~20:00, 연중무휴', '17:00~24:00, 일요일 휴무']} onPick={(ex) => patch({ businessHours: ex })} />
           <label>위치·찾아오는 길 (선택)</label>
           <input value={task.wayToFind} onChange={(e) => patch({ wayToFind: e.target.value })} placeholder="예: 서면역 4번 출구 도보 5분" />
-          <ExampleChips examples={['서면역 4번 출구 도보 5분', '학교 정문 맞은편 골목', '아파트 정문 앞 상가 1층']} onPick={(ex) => patch({ wayToFind: ex })} />
           <label>직접 확인한 이용 정보 (선택)</label>
           <input value={task.verifiedInfo} onChange={(e) => patch({ verifiedInfo: e.target.value })} placeholder="예: 주차 3대 가능" />
-          <ExampleChips examples={['주차 3대 가능', '포장 손님 우선 주차 2대', '건물 뒤편 공영주차장 이용']} onPick={(ex) => patch({ verifiedInfo: ex })} />
         </div>
       )}
 
       <div className="field">
         <label>오늘의 상황 {task.type === '오늘의 상황 안내' && <span className="badge badge-required">필수</span>}</label>
         <input value={task.situation} onChange={(e) => patch({ situation: e.target.value })} placeholder="예: 비가 많이 오는 평일 저녁" />
-        <ExampleChips examples={['비가 많이 오는 평일 저녁', '환절기라 따뜻한 국물을 찾는 분위기', '주말 나들이객이 몰리는 동네 축제 기간']} onPick={(ex) => patch({ situation: ex })} />
         {task.type === '오늘의 상황 안내' && !task.situation.trim() && <p className="field-error">오늘의 상황을 입력해주세요.</p>}
         {sensSituation.flagged && <p className="field-error">손님·직원·계좌 정보로 보여요. 가게 정보만 남겨주세요.</p>}
       </div>
@@ -1170,10 +1125,7 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) 
           <p className="field-hint">소개서 말투가 비어 있어 기본 제안 "담백하고 정감 있게"를 적용해요.</p>
         )}
         {task.tone === '직접 입력' && (
-          <>
-            <input value={task.toneCustom} onChange={(e) => patch({ toneCustom: e.target.value })} placeholder="예: 씩씩하고 활기차게" />
-            <ExampleChips examples={['씩씩하고 활기차게', '차분하고 진중하게', '유쾌하고 재치있게']} onPick={(ex) => patch({ toneCustom: ex })} />
-          </>
+          <input value={task.toneCustom} onChange={(e) => patch({ toneCustom: e.target.value })} placeholder="예: 씩씩하고 활기차게" />
         )}
       </div>
 
@@ -1195,14 +1147,11 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) 
           <h3>메뉴 설명에 필요한 사실</h3>
           <label>이번 메뉴명 <span className="badge badge-required">필수</span></label>
           <input value={task.menuName} onChange={(e) => patch({ menuName: e.target.value })} placeholder="소개서 메뉴 중 하나 또는 직접 입력" />
-          <ExampleChips examples={parseMenuNames(profile.menuPrice)} onPick={(ex) => patch({ menuName: ex })} />
           {!task.menuName.trim() && <p className="field-error">이번 메뉴명을 입력해주세요.</p>}
           <label>가격 (선택, 없으면 비워두면 자동 생략)</label>
           <input value={task.menuPriceNote} onChange={(e) => patch({ menuPriceNote: e.target.value })} />
-          <ExampleChips examples={['10,000원', '2인 세트 25,000원', '변동 없음']} onPick={(ex) => patch({ menuPriceNote: ex })} />
           <label>재료·구성·특징 (선택)</label>
           <textarea rows={2} value={task.menuIngredient} onChange={(e) => patch({ menuIngredient: e.target.value })} />
-          <ExampleChips examples={['국내산 돼지고기, 사골 육수 12시간 우려냄', '유기농 채소, 매일 아침 입고', '수제 반죽, 당일 발효']} onPick={(ex) => patch({ menuIngredient: ex })} />
           <p className="field-hint">입력하지 않은 맵기 단계·양·인분 수·밥 포함 여부는 만들지 않도록 요청에 포함돼요.</p>
         </div>
       )}
@@ -1215,7 +1164,6 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) 
           {!task.menuName.trim() && <p className="field-error">메뉴명을 입력해주세요.</p>}
           <label>시작 시점 <span className="badge badge-required">필수</span></label>
           <input value={task.startDate} onChange={(e) => patch({ startDate: e.target.value })} placeholder="예: 2026-09-16부터" />
-          <ExampleChips examples={['2026-09-16부터', '이번 주 목요일부터', '다음 달 1일부터']} onPick={(ex) => patch({ startDate: ex })} />
           {!task.startDate.trim() && <p className="field-error">시작 시점을 입력해주세요. 입력하지 않으면 시점을 지어내지 않아요.</p>}
         </div>
       )}
@@ -1225,16 +1173,12 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) 
           <h3>이벤트 안내에 필요한 사실 (4가지 모두 필수)</h3>
           <label>행사명</label>
           <input value={task.eventName} onChange={(e) => patch({ eventName: e.target.value })} />
-          <ExampleChips examples={['가을맞이 할인', '신메뉴 출시 기념', '개업 1주년 감사']} onPick={(ex) => patch({ eventName: ex })} />
           <label>기간·시간</label>
           <input value={task.eventPeriod} onChange={(e) => patch({ eventPeriod: e.target.value })} placeholder="예: 2026-09-13(토)~09-14(일)" />
-          <ExampleChips examples={['2026-09-13(토)~09-14(일)', '이번 주말 한정(토~일)', '선착순 100명(조기 종료 가능)']} onPick={(ex) => patch({ eventPeriod: ex })} />
           <label>실제 혜택</label>
           <input value={task.eventBenefit} onChange={(e) => patch({ eventBenefit: e.target.value })} />
-          <ExampleChips examples={['1,000원 할인', '음료 1개 무료 증정', '두 번째 메뉴 반값']} onPick={(ex) => patch({ eventBenefit: ex })} />
           <label>대상·조건 (없으면 "없음"이라고 입력)</label>
           <input value={task.eventCondition} onChange={(e) => patch({ eventCondition: e.target.value })} />
-          <ExampleChips examples={['없음', '배달앱 주문 고객 한정', '2만원 이상 주문 시']} onPick={(ex) => patch({ eventCondition: ex })} />
           {(!task.eventName.trim() || !task.eventPeriod.trim() || !task.eventBenefit.trim() || !task.eventCondition.trim()) && (
             <p className="field-error">행사명·기간·혜택·조건 네 가지를 모두 입력해주세요.</p>
           )}
@@ -1247,13 +1191,10 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) 
           <h3>재료 소진 안내</h3>
           <label>소진된 메뉴 <span className="badge badge-required">필수</span></label>
           <input value={task.soldOutMenu} onChange={(e) => patch({ soldOutMenu: e.target.value })} />
-          <ExampleChips examples={parseMenuNames(profile.menuPrice)} onPick={(ex) => patch({ soldOutMenu: ex })} />
           <label>안내할 날짜 <span className="badge badge-required">필수</span></label>
           <input value={task.soldOutDate} onChange={(e) => patch({ soldOutDate: e.target.value })} />
-          <ExampleChips examples={['오늘(9월 15일)', '내일부터', '이번 주말']} onPick={(ex) => patch({ soldOutDate: ex })} />
           <label>재판매 시점 (선택, 입력한 경우만 포함)</label>
           <input value={task.resumeDate} onChange={(e) => patch({ resumeDate: e.target.value })} />
-          <ExampleChips examples={['내일부터 다시 판매', '다음 입고일부터', '다음 주 월요일부터']} onPick={(ex) => patch({ resumeDate: ex })} />
         </div>
       )}
 
@@ -1262,11 +1203,9 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) 
           <h3>휴무 안내</h3>
           <label>휴무 날짜 <span className="badge badge-required">필수</span></label>
           <input value={task.closedDate} onChange={(e) => patch({ closedDate: e.target.value })} />
-          <ExampleChips examples={['9월 15일(월) 하루', '추석 연휴 9/14~9/16', '매주 월요일']} onPick={(ex) => patch({ closedDate: ex })} />
           {!task.closedDate.trim() && <p className="field-error">휴무 날짜를 입력해주세요.</p>}
           <label>다음 영업일 (선택, 입력한 경우만 포함)</label>
           <input value={task.nextOpenDate} onChange={(e) => patch({ nextOpenDate: e.target.value })} />
-          <ExampleChips examples={['9월 16일(화)부터 정상영업', '다음 날 정상영업', '추석 연휴 이후 정상영업']} onPick={(ex) => patch({ nextOpenDate: ex })} />
         </div>
       )}
 
@@ -1311,7 +1250,6 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) 
               </p>
               <label>확인된 조치 (선택, 있는 경우만 약속에 포함)</label>
               <input value={task.confirmedAction} onChange={(e) => patch({ confirmedAction: e.target.value })} placeholder="예: 다음 조리부터 간을 다시 확인하기로 함" />
-              <ExampleChips examples={['다음 조리부터 간을 다시 확인하기로 함', '포장 상태를 한 번 더 점검하기로 함', '배달 전 온도 유지 방법을 개선하기로 함']} onPick={(ex) => patch({ confirmedAction: ex })} />
               <label>제공 가능한 약속 (선택)</label>
               <input value={task.possiblePromise} onChange={(e) => patch({ possiblePromise: e.target.value })} placeholder="확인되지 않았다면 비워두세요" />
               {!task.confirmedAction.trim() && <p className="field-hint">확인된 조치가 없으면 "확인하겠습니다" 수준까지만 요청에 담겨요.</p>}
@@ -1509,12 +1447,6 @@ function QuickPicker({ profile, setTask, onGoPreview, onGoRewrite, onGoCustom })
                         )}
                         {detectSensitiveData(blank).flagged && (
                           <p className="field-error">손님·직원·계좌 정보로 보여요. 가게 정보만 남겨주세요.</p>
-                        )}
-                        {t.quickBlank.key === 'menuName' && (
-                          <ExampleChips examples={parseMenuNames(profile.menuPrice)} onPick={setBlank} />
-                        )}
-                        {t.quickBlank.key === 'quickNote' && (
-                          <ExampleChips examples={[(t.quickBlank.placeholder || '').replace(/^예:\s*/, '')].filter(Boolean)} onPick={setBlank} />
                         )}
                         {t.quickBlank.key === 'reviewText' && platform === '배민앱' && (
                           <>
@@ -1803,7 +1735,6 @@ function RewriteBuilder({ profile, task, onBack, initialDirection, initialNewPla
             <div className="field">
               <label>사장님의 경력·운영기간</label>
               <input value={experience} onChange={(e) => setExperience(e.target.value)} placeholder="예: 20년째 같은 자리에서 운영" />
-              <ExampleChips examples={['20년째 같은 자리에서 운영', '3대째 가업을 잇고 있음', '전직 호텔 셰프 출신 사장님이 직접 조리']} onPick={setExperience} />
               {!experience.trim() && <p className="field-hint">입력하지 않으면 이 방향의 요청을 만들지 않아요.</p>}
             </div>
           )}
@@ -1829,7 +1760,6 @@ function RewriteBuilder({ profile, task, onBack, initialDirection, initialNewPla
                   <textarea rows={2} value={rwReviewText} onChange={(e) => setRwReviewText(e.target.value)} />
                   <label>확인된 조치 (선택)</label>
                   <input value={rwConfirmedAction} onChange={(e) => setRwConfirmedAction(e.target.value)} />
-                  <ExampleChips examples={['다음 조리부터 간을 다시 확인하기로 함', '포장 상태를 한 번 더 점검하기로 함', '배달 전 온도 유지 방법을 개선하기로 함']} onPick={setRwConfirmedAction} />
                 </>
               )}
             </div>
@@ -2173,7 +2103,6 @@ input:focus, textarea:focus, select:focus, button:focus { outline: 3px solid #9b
 .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
 .chip { font-size: 14px; padding: 10px 14px; border-radius: 999px; border: 1px solid #ccc; background: #fff; min-height: 40px; color: #1A1A1A; }
 .chip-active { background: #2AC1BC; border-color: #2AC1BC; color: #04302E; font-weight: 700; }
-.chip-example { white-space: normal; word-break: keep-all; text-align: left; max-width: 100%; background: #F7FEFE; border-style: dashed; border-color: #8FD9D4; font-size: 13px; padding: 8px 12px; min-height: auto; }
 .check-row { display: flex; align-items: center; gap: 8px; font-size: 14px; margin: 6px 0; }
 .check-row input { width: auto; margin: 0; }
 .btn { font-size: 16px; padding: 12px 16px; border-radius: 10px; border: 1px solid #2AC1BC; min-height: 44px; font-weight: 700; }
