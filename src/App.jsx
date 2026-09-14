@@ -143,63 +143,88 @@ function resolvePlacement(platform, postType, opts) {
 const TEMPLATES = [
   // A. 가게 소개·기본
   { id: 1, title: '처음 오신 손님께 소개', category: '가게 소개·기본', type: '가게 소개', optionalPlatform: null,
-    instruction: '우리 가게를 처음 보는 손님에게 소개하는 글을 200자 이내로 써주세요.', quickBlank: null },
+    instruction: '우리 가게를 처음 보는 손님에게 소개하는 글을 200자 이내로 써주세요.', quickBlank: null, targetLen: 200,
+    example: '20년째 같은 자리에서 얼큰돼지국밥을 끓이는 집입니다. 매일 아침 육수를 직접 우려내고, 얼큰돼지국밥 10,000원·수육백반 13,000원에 판매합니다. 평일 점심엔 직장인 손님이 많고, 혼자 오셔도 편하게 드실 수 있어요.' },
   { id: 2, title: '다섯 가지 소개 문구', category: '가게 소개·기본', type: '가게 소개', optionalPlatform: null,
-    instruction: '우리 가게를 한 문장으로 설명하는 문구를 5개 만들어주세요. 서로 다른 각도로요.', quickBlank: null },
+    instruction: '우리 가게를 한 문장으로 설명하는 문구를 5개 만들어주세요. 서로 다른 각도로요.', quickBlank: null, targetLen: null,
+    example: '"20년째 한자리, 얼큰돼지국밥 한 그릇" (그 중 한 문구 예시)' },
   { id: 3, title: '강점 세 가지 정리', category: '가게 소개·기본', type: '가게 소개', optionalPlatform: null,
-    instruction: '우리 가게 강점 세 가지를 손님 입장에서 이해되게 정리해주세요.', quickBlank: null },
+    instruction: '우리 가게 강점 세 가지를 손님 입장에서 이해되게 정리해주세요.', quickBlank: null, targetLen: null,
+    example: '1) 20년째 같은 재료로 끓이는 육수 2) 평일 점심 직장인 단골 많음 3) 혼밥도 편안한 자리' },
   { id: 4, title: '배민 소개란 문구', category: '가게 소개·기본', type: '가게 소개', optionalPlatform: '배민앱',
-    instruction: '배민 가게 소개란에 넣을 문구를 150자 이내로 써주세요.', quickBlank: null },
+    instruction: '배민 가게 소개란에 넣을 문구를 150자 이내로 써주세요.', quickBlank: null, targetLen: 150,
+    example: '매일 아침 육수를 직접 끓이는 20년 전통 돼지국밥집입니다. 얼큰돼지국밥 10,000원, 수육백반 13,000원. 평일 점심엔 직장인 손님이 많이 찾습니다.' },
   { id: 5, title: '무엇을 시킬지 안내', category: '가게 소개·기본', type: '가게 소개', optionalPlatform: null,
-    instruction: '처음 오신 손님이 무엇을 시켜야 할지 알려주는 안내 문구를 써주세요.', quickBlank: null },
+    instruction: '처음 오신 손님이 무엇을 시켜야 할지 알려주는 안내 문구를 써주세요.', quickBlank: null, targetLen: null,
+    example: '처음이시면 얼큰돼지국밥을 추천드려요. 얼큰한 국물이 부담스러우면 수육백반도 좋습니다.' },
 
   // B. 메뉴·신메뉴
   { id: 6, title: '대표메뉴 소개', category: '메뉴·신메뉴', type: '메뉴 설명', optionalPlatform: '배민앱',
-    instruction: '대표 메뉴 [메뉴명]을 배달앱 고객이 먹어보고 싶도록 150자 이내로 소개해주세요.', quickBlank: { key: 'menuName', label: '메뉴명', placeholder: '예: 얼큰돼지국밥' } },
+    instruction: '대표 메뉴 [메뉴명]을 배달앱 고객이 먹어보고 싶도록 150자 이내로 소개해주세요.', quickBlank: { key: 'menuName', label: '메뉴명', placeholder: '예: 얼큰돼지국밥' }, targetLen: 150,
+    example: '매일 아침 직접 끓인 육수에 돼지고기를 듬뿍 올린 얼큰돼지국밥입니다. 얼큰하면서도 깊은 맛이 나고, 밥 한 공기가 절로 들어갑니다. 10,000원.' },
   { id: 7, title: '재료·과정 설명', category: '메뉴·신메뉴', type: '메뉴 설명', optionalPlatform: null,
-    instruction: '[메뉴명]의 재료와 만드는 과정을 손님이 믿음이 가도록 100자로 설명해주세요.', quickBlank: { key: 'menuName', label: '메뉴명', placeholder: '예: 얼큰돼지국밥' } },
+    instruction: '[메뉴명]의 재료와 만드는 과정을 손님이 믿음이 가도록 100자로 설명해주세요.', quickBlank: { key: 'menuName', label: '메뉴명', placeholder: '예: 얼큰돼지국밥' }, targetLen: 100,
+    example: '국내산 돼지 사골을 12시간 우려낸 육수에 매일 아침 새로 삶은 고기를 올립니다. 조미료 대신 재료 본연의 맛으로 승부합니다.' },
   { id: 8, title: '신메뉴 공지', category: '메뉴·신메뉴', type: '메뉴 설명', optionalPlatform: null,
-    instruction: '이번 주부터 시작하는 신메뉴 [메뉴명]을 궁금해지도록 공지 문구 100자로 써주세요.', quickBlank: { key: 'menuName', label: '신메뉴명', placeholder: '예: 매운갈비국밥' } },
+    instruction: '이번 주부터 시작하는 신메뉴 [메뉴명]을 궁금해지도록 공지 문구 100자로 써주세요.', quickBlank: { key: 'menuName', label: '신메뉴명', placeholder: '예: 매운갈비국밥' }, targetLen: 100,
+    example: '이번 주부터 매운갈비국밥 새로 시작합니다. 얼큰한 국물에 갈비를 올렸어요. 많이 기대해주세요.' },
   { id: 9, title: '안 나가는 메뉴 다시 소개', category: '메뉴·신메뉴', type: '메뉴 설명', optionalPlatform: null,
-    instruction: '잘 안 나가는 메뉴 [메뉴명]의 설명 문구를 서로 다른 3가지 버전으로 써주세요.', quickBlank: { key: 'menuName', label: '메뉴명', placeholder: '예: 수육백반' } },
+    instruction: '잘 안 나가는 메뉴 [메뉴명]의 설명 문구를 서로 다른 3가지 버전으로 써주세요.', quickBlank: { key: 'menuName', label: '메뉴명', placeholder: '예: 수육백반' }, targetLen: null,
+    example: '"가볍게 한 끼, 그런데 든든하게 — 수육백반 13,000원" (그 중 한 버전 예시)' },
   { id: 10, title: '메뉴판 한 줄 설명', category: '메뉴·신메뉴', type: '메뉴 설명', optionalPlatform: null,
-    instruction: '우리 메뉴판이 고르기 쉬워지도록 메뉴마다 한 줄 설명을 붙여주세요.', quickBlank: null },
+    instruction: '우리 메뉴판이 고르기 쉬워지도록 메뉴마다 한 줄 설명을 붙여주세요.', quickBlank: null, targetLen: null,
+    example: '얼큰돼지국밥 — 얼큰하고 진한 국물, 밥이 절로 들어가는 한 그릇' },
 
   // C. 이벤트·프로모션
   { id: 11, title: '주말 이벤트 안내', category: '이벤트·프로모션', type: '이벤트 안내', optionalPlatform: null,
-    instruction: '이번 주말 [이벤트 내용] 안내문을 조건이 헷갈리지 않게 3줄로 정리해주세요.', quickBlank: { key: 'quickNote', label: '이벤트 내용', placeholder: '예: 포장 주문 시 아메리카노 1잔 무료, 선착순 30명, 9/13~14' } },
+    instruction: '이번 주말 [이벤트 내용] 안내문을 조건이 헷갈리지 않게 3줄로 정리해주세요.', quickBlank: { key: 'quickNote', label: '이벤트 내용', placeholder: '예: 포장 주문 시 아메리카노 1잔 무료, 선착순 30명, 9/13~14' }, targetLen: null,
+    example: '9/13(토)~9/14(일) 포장 주문 시 아메리카노 1잔 무료\n선착순 30명 한정\n매장 방문 포장만 해당' },
   { id: 12, title: '재방문 서비스 안내', category: '이벤트·프로모션', type: '이벤트 안내', optionalPlatform: null,
-    instruction: '재방문 손님께 드리는 서비스 안내를 부담스럽지 않게 써주세요.', quickBlank: null },
+    instruction: '재방문 손님께 드리는 서비스 안내를 부담스럽지 않게 써주세요.', quickBlank: null, targetLen: null,
+    example: '또 찾아주셔서 감사합니다. 오늘은 계란 하나 더 얹어드릴게요.' },
   { id: 13, title: '첫 주문 할인 안내', category: '이벤트·프로모션', type: '이벤트 안내', optionalPlatform: '배민앱',
-    instruction: '첫 주문 고객 할인 안내를 배민 공지용으로 100자 이내로 써주세요.', quickBlank: null },
+    instruction: '첫 주문 고객 할인 안내를 배민 공지용으로 100자 이내로 써주세요.', quickBlank: null, targetLen: 100,
+    example: '첫 주문 고객님께 국밥 한 그릇당 1,000원 할인해드립니다. 지금 바로 주문해보세요.' },
   { id: 14, title: '리뷰 이벤트 안내', category: '이벤트·프로모션', type: '이벤트 안내', optionalPlatform: null,
-    instruction: '리뷰 이벤트 안내문을 강요처럼 보이지 않게 써주세요.', quickBlank: null },
+    instruction: '리뷰 이벤트 안내문을 강요처럼 보이지 않게 써주세요.', quickBlank: null, targetLen: null,
+    example: '솔직한 리뷰 남겨주시면 다음 방문 때 음료 한 잔 드려요. 부담 없이 남겨주세요.' },
   { id: 15, title: '단골 감사 인사', category: '이벤트·프로모션', type: 'SNS 문구', optionalPlatform: null,
-    instruction: '오래된 단골 손님께 드리는 감사 인사를 SNS용으로, 낯간지럽지 않게 써주세요.', quickBlank: null },
+    instruction: '오래된 단골 손님께 드리는 감사 인사를 SNS용으로, 낯간지럽지 않게 써주세요.', quickBlank: null, targetLen: null,
+    example: '20년 동안 이 자리를 지킬 수 있었던 건 늘 찾아주시는 단골 손님들 덕분입니다. 항상 감사합니다.' },
 
   // D. 날씨·계절·상황
   { id: 16, title: '비 오는 날 (배민+인스타)', category: '날씨·계절·상황', type: '오늘의 상황 안내', optionalPlatform: 'dual',
-    instruction: '오늘 비가 많이 옵니다. 배민 공지 문구와 인스타그램 글을 각각 하나씩 써주세요.', quickBlank: null, defaultSituation: '비가 많이 오는 날' },
+    instruction: '오늘 비가 많이 옵니다. 배민 공지 문구와 인스타그램 글을 각각 하나씩 써주세요.', quickBlank: null, defaultSituation: '비가 많이 오는 날', targetLen: null,
+    example: '배민: "오늘처럼 비 오는 날엔 뜨끈한 국물이 생각나죠. 따뜻하게 준비하고 기다리겠습니다." / 인스타: "빗소리 들으며 먹는 국밥 한 그릇, 오늘 어떠세요?"' },
   { id: 17, title: '추운 날 인사', category: '날씨·계절·상황', type: '오늘의 상황 안내', optionalPlatform: null,
-    instruction: '날이 많이 추워졌습니다. 따뜻한 메뉴를 권하는 짧은 글을 써주세요.', quickBlank: null, defaultSituation: '많이 추워진 날씨' },
+    instruction: '날이 많이 추워졌습니다. 따뜻한 메뉴를 권하는 짧은 글을 써주세요.', quickBlank: null, defaultSituation: '많이 추워진 날씨', targetLen: null,
+    example: '많이 추워졌습니다. 뜨끈한 국물로 몸 녹이고 가세요.' },
   { id: 18, title: '여름 한정 메뉴', category: '날씨·계절·상황', type: '오늘의 상황 안내', optionalPlatform: null,
-    instruction: '여름 한정으로 [메뉴]를 판매합니다. 지금 아니면 못 먹는다는 느낌을 과장 없이 살려주세요.', quickBlank: { key: 'menuName', label: '여름 한정 메뉴', placeholder: '예: 냉국밥' }, defaultSituation: '여름 한정 판매' },
+    instruction: '여름 한정으로 [메뉴]를 판매합니다. 지금 아니면 못 먹는다는 느낌을 과장 없이 살려주세요.', quickBlank: { key: 'menuName', label: '여름 한정 메뉴', placeholder: '예: 냉국밥' }, defaultSituation: '여름 한정 판매', targetLen: null,
+    example: '여름에만 만나는 냉국밥, 시원하게 준비했습니다. 더위에 지친 하루, 이 한 그릇으로 채워보세요.' },
   { id: 19, title: '휴무 안내', category: '날씨·계절·상황', type: '오늘의 상황 안내', optionalPlatform: null,
-    instruction: '휴무 일정을 손님이 서운하지 않게, 다음 영업일 안내까지 포함해서 안내하는 문구를 써주세요.', quickBlank: { key: 'quickNote', label: '휴무 일정 (명절 연휴도 이 칸에)', placeholder: '예: 9/14(월)~9/16(수) 휴무, 9/17(목) 정상영업' } },
+    instruction: '휴무 일정을 손님이 서운하지 않게, 다음 영업일 안내까지 포함해서 안내하는 문구를 써주세요.', quickBlank: { key: 'quickNote', label: '휴무 일정 (명절 연휴도 이 칸에)', placeholder: '예: 9/14(월)~9/16(수) 휴무, 9/17(목) 정상영업' }, targetLen: null,
+    example: '9/14(월)~9/16(수) 휴무입니다. 9/17(목)부터 정상 영업합니다. 편안한 연휴 보내세요.' },
   { id: 20, title: '오늘 마감 안내', category: '날씨·계절·상황', type: '오늘의 상황 안내', optionalPlatform: null,
-    instruction: '오늘 [메뉴]가 일찍 마감됐습니다. 아쉬워하실 손님께 드리는 정중한 안내문을 써주세요.', quickBlank: { key: 'menuName', label: '오늘 마감된 메뉴', placeholder: '예: 수육백반' }, defaultSituation: '메뉴 조기 마감' },
+    instruction: '오늘 [메뉴]가 일찍 마감됐습니다. 아쉬워하실 손님께 드리는 정중한 안내문을 써주세요.', quickBlank: { key: 'menuName', label: '오늘 마감된 메뉴', placeholder: '예: 수육백반' }, defaultSituation: '메뉴 조기 마감', targetLen: null,
+    example: '오늘 수육백반이 일찍 마감되었습니다. 아쉽지만 내일 더 넉넉히 준비하겠습니다.' },
 
   // E. 리뷰·고객 응대
   { id: 21, title: '좋은 리뷰 답글', category: '리뷰·고객 응대', type: '리뷰 답변', optionalPlatform: null,
-    instruction: '별점 5점 리뷰 "[리뷰 내용]"에 답글을 100자 이내로 써주세요. 복사한 것처럼 보이지 않게요.', quickBlank: { key: 'reviewText', label: '실제 리뷰 내용 (별점 5점)', placeholder: '예: 국물이 깔끔해요' }, reviewMeta: { rating: '5' } },
+    instruction: '별점 5점 리뷰 "[리뷰 내용]"에 답글을 100자 이내로 써주세요. 복사한 것처럼 보이지 않게요.', quickBlank: { key: 'reviewText', label: '실제 리뷰 내용 (별점 5점)', placeholder: '예: 국물이 깔끔해요' }, reviewMeta: { rating: '5' }, targetLen: 100,
+    example: '국물이 깔끔하다는 말씀, 매일 아침 육수 내는 보람이 있습니다. 다음에도 맛있게 드실 수 있도록 하겠습니다. 감사합니다.' },
   { id: 22, title: '불만 리뷰 답글', category: '리뷰·고객 응대', type: '리뷰 답변', optionalPlatform: null,
-    instruction: '별점 2점 리뷰 "[불만 내용]"에 답글을 써주세요. 사과 → 변명 없이 → 확인·개선 → 재방문 제안 순서로요.', quickBlank: { key: 'reviewText', label: '실제 리뷰 내용 (별점 2점, 불만)', placeholder: '예: 오늘따라 국물이 좀 짰어요' }, reviewMeta: { rating: '2', complaint: true } },
+    instruction: '별점 2점 리뷰 "[불만 내용]"에 답글을 써주세요. 사과 → 변명 없이 → 확인·개선 → 재방문 제안 순서로요.', quickBlank: { key: 'reviewText', label: '실제 리뷰 내용 (별점 2점, 불만)', placeholder: '예: 오늘따라 국물이 좀 짰어요' }, reviewMeta: { rating: '2', complaint: true }, targetLen: null,
+    example: '국물이 짜게 느껴지셨다니 죄송합니다. 육수 간을 다시 확인하겠습니다. 의견 남겨주셔서 감사합니다.' },
   { id: 23, title: '배달 지연 리뷰 답글', category: '리뷰·고객 응대', type: '리뷰 답변', optionalPlatform: null,
-    instruction: '배달이 늦었다는 리뷰에 대한 답글을 감정적이지 않게 써주세요.', quickBlank: { key: 'reviewText', label: '실제 리뷰 내용 (배달 지연)', placeholder: '예: 배달이 너무 늦게 왔어요' }, reviewMeta: { complaint: true } },
+    instruction: '배달이 늦었다는 리뷰에 대한 답글을 감정적이지 않게 써주세요.', quickBlank: { key: 'reviewText', label: '실제 리뷰 내용 (배달 지연)', placeholder: '예: 배달이 너무 늦게 왔어요' }, reviewMeta: { complaint: true }, targetLen: null,
+    example: '배달이 늦어 불편을 드려 죄송합니다. 배달 상황을 다시 한번 점검하겠습니다.' },
   { id: 24, title: '리뷰 답글 5가지', category: '리뷰·고객 응대', type: '리뷰 답변', optionalPlatform: null,
-    instruction: '리뷰 답글 5개를 각각 다른 표현으로 써주세요. 같은 말이 반복되지 않게요.', quickBlank: { key: 'reviewText', label: '실제 리뷰 내용', placeholder: '최근에 받은 리뷰를 붙여넣어주세요' } },
+    instruction: '리뷰 답글 5개를 각각 다른 표현으로 써주세요. 같은 말이 반복되지 않게요.', quickBlank: { key: 'reviewText', label: '실제 리뷰 내용', placeholder: '최근에 받은 리뷰를 붙여넣어주세요' }, targetLen: null,
+    example: '"소중한 리뷰 감사합니다. 다음에도 맛있게 준비하겠습니다." (그 중 한 버전 예시)' },
   { id: 25, title: '칭찬 리뷰 살리기', category: '리뷰·고객 응대', type: '리뷰 답변', optionalPlatform: null,
-    instruction: '손님이 남긴 칭찬을 다음 손님도 궁금해지도록 답글에 자연스럽게 살려주세요.', quickBlank: { key: 'reviewText', label: '실제 리뷰 내용 (칭찬)', placeholder: '예: 사장님이 친절하셔서 또 오고 싶어요' } },
+    instruction: '손님이 남긴 칭찬을 다음 손님도 궁금해지도록 답글에 자연스럽게 살려주세요.', quickBlank: { key: 'reviewText', label: '실제 리뷰 내용 (칭찬)', placeholder: '예: 사장님이 친절하셔서 또 오고 싶어요' }, targetLen: null,
+    example: '친절하다는 말씀 감사합니다. 다음에 오시면 더 반갑게 맞이하겠습니다.' },
 
   // F. 플랫폼 변환·마무리 (받은 글을 다른 곳에 맞게 바꾸기 — 원문 붙여넣기 필요)
   { id: 26, title: '네이버로 바꾸기', category: '플랫폼 변환·마무리', type: 'rewrite', optionalPlatform: '네이버 플레이스',
@@ -1087,6 +1112,32 @@ function CommonSituationsTips() {
   )
 }
 
+const PLATFORM_CHAR_LIMITS = [
+  { platform: '배민앱', field: '가게 소개', limit: '최대 500자', note: '배민외식업광장 공식 화면에서 확인 (2026-09-12 기준)', confirmed: true },
+  { platform: '배민앱', field: '사장님 댓글 · 자주 쓰는 문구', limit: '각 최대 1,000자', note: '배민외식업광장 「사장님 댓글 관리」 화면에서 확인', confirmed: true },
+  { platform: '네이버 플레이스', field: '업체 상세설명', limit: '정확한 상한 확인 어려움', note: '공식 도움말에 명확한 글자 수 제한이 나와 있지 않아요. 관리자 화면에서 입력하며 직접 확인하는 게 정확해요.', confirmed: false },
+  { platform: '구글맵', field: '업체 설명', limit: '정확한 상한 확인 어려움', note: '공식 자료로 확정된 글자 수를 확인하지 못했어요. 관리자 화면에서 직접 확인하는 게 정확해요.', confirmed: false },
+  { platform: '인스타그램', field: '게시물 설명 · 해시태그', limit: '해시태그는 최대 5개', note: '게시물 본문 자체의 글자 수 제한은 이 앱이 확인한 자료에 없어요. 해시태그 5개 제한은 2025년 12월 발표 기준으로 확정돼요.', confirmed: true },
+]
+
+function PlatformCharLimits() {
+  const [open, setOpen] = useState(false)
+  return (
+    <details className="backup-panel" open={open} onToggle={(e) => setOpen(e.target.open)}>
+      <summary>플랫폼별 실제 글자수 한도</summary>
+      <p className="field-hint">아래 목록의 "OOO자" 배지는 이 템플릿이 제안하는 목표 분량이고, 플랫폼이 실제로 허용하는 입력 한도와는 달라요. 플랫폼 정책은 수시로 바뀔 수 있으니, 등록 직전엔 각 플랫폼의 관리자 화면에서 한 번 더 확인해주세요.</p>
+      <ul className="template-list">
+        {PLATFORM_CHAR_LIMITS.map((l, i) => (
+          <li key={i} className="template-item" style={{ background: '#fff' }}>
+            <span className="template-title">{l.platform} · {l.field} — {l.limit}</span>
+            <span className="template-instruction">{l.note}</span>
+          </li>
+        ))}
+      </ul>
+    </details>
+  )
+}
+
 /* ============================================================
  * 화면 2 — 이번에 쓸 글 (RequestBuilder)
  * ============================================================ */
@@ -1589,12 +1640,15 @@ function QuickPicker({ profile, setTask, onGoPreview, onGoRewrite, onGoCustom })
         ))}
       </div>
 
+      <PlatformCharLimits />
+
       <ul className="quick-list">
         {TEMPLATES.filter((t) => t.category === cat).map((t) => (
           <li key={t.id}>
             <button className={`quick-card ${selectedId === t.id ? 'quick-card-active' : ''}`} onClick={() => selectTemplate(t)}>
-              <span className="template-title">{t.title}</span>
+              <span className="template-title">{t.title}{t.targetLen && <span className="badge badge-len">{t.targetLen}자</span>}</span>
               <span className="template-instruction">{t.instruction}</span>
+              {t.example && <span className="template-example">예시: "{t.example}"</span>}
             </button>
 
             {selectedId === t.id && (
@@ -2340,6 +2394,7 @@ body {
 .badge { font-size: 11px; border-radius: 999px; padding: 2px 8px; margin-left: 6px; font-weight: 700; }
 .badge-required { background: #FFE3E3; color: #B3261E; }
 .badge-important { background: #E4FBF9; color: #0F6B67; }
+.badge-len { background: #EEF1F1; color: #445659; }
 input[type="text"], input[type="number"], input:not([type]), textarea, select {
   width: 100%; font-size: 16px; padding: 10px 12px; border: 1px solid #ccc; border-radius: 10px;
   font-family: inherit; background: #fff; color: #1A1A1A; margin-bottom: 4px;
@@ -2382,10 +2437,12 @@ input:focus, textarea:focus, select:focus, button:focus { outline: 3px solid #9b
 .template-item { width: 100%; text-align: left; border: 1px solid #ddd; border-radius: 10px; padding: 10px 12px; background: #fff; }
 .template-title { display: block; font-weight: 700; font-size: 13.5px; }
 .template-instruction { display: block; font-size: 12.5px; color: #555; margin-top: 2px; }
+.template-example { display: block; font-size: 12px; color: #17948F; margin-top: 4px; white-space: pre-line; }
 .quick-list { list-style: none; margin: 12px 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .quick-card { width: 100%; text-align: left; border: 1px solid #ddd; border-radius: 14px; padding: 14px; background: #fff; min-height: 44px; }
 .quick-card .template-title { font-size: 15px; }
 .quick-card .template-instruction { font-size: 13px; }
+.quick-card .template-example { font-size: 12.5px; }
 .quick-card-active { border-color: #2AC1BC; border-width: 2px; background: #F1FBFA; }
 .quick-detail { border: 1px solid #BFEDEA; border-top: none; border-radius: 0 0 14px 14px; margin-top: -10px; padding: 14px; background: #F7FEFE; }
 .request-box { white-space: pre-wrap; word-break: break-word; background: #F7FEFE; border: 1px solid #BFEDEA; border-radius: 12px; padding: 14px; font-size: 14px; line-height: 1.6; max-height: 60vh; overflow-y: auto; }
