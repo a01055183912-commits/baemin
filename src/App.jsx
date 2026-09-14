@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
+import QRCode from 'qrcode'
 
 /* ============================================================
  * AI로 만드는 우리 가게 홍보 글쓰기 — 우리 가게 요청 문장 도우미
@@ -633,6 +634,41 @@ export function validateBackup(rawText) {
   return { valid: true, data: store }
 }
 
+/* ---------------- 이 화면 주소 QR코드 (눌러서 크게 보기) ---------------- */
+
+function PageQRCode() {
+  const [src, setSrc] = useState('')
+  const [big, setBig] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    QRCode.toDataURL(window.location.href, { width: 240, margin: 1, color: { dark: '#04302E', light: '#FFFFFF' } })
+      .then((url) => { if (!cancelled) setSrc(url) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [])
+
+  if (!src) return null
+
+  return (
+    <>
+      <button type="button" className="qr-thumb" onClick={() => setBig(true)} aria-label="QR코드 크게 보기">
+        <img src={src} alt="이 화면 주소로 바로 들어오는 QR코드" />
+        <span className="field-hint">눌러서 크게 보기</span>
+      </button>
+      {big && (
+        <div className="qr-overlay" onClick={() => setBig(false)}>
+          <div className="qr-overlay-card">
+            <img src={src} alt="이 화면 주소로 바로 들어오는 QR코드 (확대)" />
+            <p>휴대폰 카메라로 스캔하면 이 화면으로 바로 들어와요.</p>
+            <button type="button" className="btn btn-outline" onClick={() => setBig(false)}>닫기</button>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
 /* ============================================================
  * 화면 1 — 우리 가게 소개서 (StoreProfile)
  * ============================================================ */
@@ -761,6 +797,8 @@ function StoreProfile({ profile, setProfile, onGoNext }) {
     <div className="screen">
       <h2>우리 가게 소개서</h2>
       <p className="lead">우리 가게 정보를 제대로 알려줘야, 우리 가게다운 글이 나옵니다. 네 가지만 적으면 시작할 수 있어요.</p>
+
+      <PageQRCode />
 
       <div className="progress">
         <div className="progress-row">
@@ -2168,6 +2206,13 @@ input:focus, textarea:focus, select:focus, button:focus { outline: 3px solid #9b
 .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
 .chip { font-size: 14px; padding: 10px 14px; border-radius: 999px; border: 1px solid #ccc; background: #fff; min-height: 40px; color: #1A1A1A; }
 .chip-active { background: #2AC1BC; border-color: #2AC1BC; color: #04302E; font-weight: 700; }
+.qr-thumb { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; background: #fff; border: 1px solid #BFEDEA; border-radius: 12px; padding: 8px; margin-bottom: 10px; cursor: pointer; }
+.qr-thumb img { width: 72px; height: 72px; display: block; }
+.qr-thumb .field-hint { margin: 0; }
+.qr-overlay { position: fixed; inset: 0; background: rgba(4, 48, 46, 0.72); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 24px; }
+.qr-overlay-card { background: #fff; border-radius: 20px; padding: 28px; text-align: center; max-width: 90vw; }
+.qr-overlay-card img { width: min(70vw, 360px); height: min(70vw, 360px); display: block; margin: 0 auto 16px; }
+.qr-overlay-card p { margin: 0 0 16px; font-size: 15px; }
 .check-row { display: flex; align-items: center; gap: 8px; font-size: 14px; margin: 6px 0; }
 .check-row input { width: auto; margin: 0; }
 .btn { font-size: 16px; padding: 12px 16px; border-radius: 10px; border: 1px solid #2AC1BC; min-height: 44px; font-weight: 700; }

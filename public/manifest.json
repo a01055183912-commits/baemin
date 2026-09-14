@@ -1,0 +1,16 @@
+{
+  "name": "AI로 만드는 우리 가게 홍보 글쓰기",
+  "short_name": "AI글쓰기",
+  "description": "우리 가게 요청 문장 도우미",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F7FEFE",
+  "theme_color": "#2AC1BC",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
