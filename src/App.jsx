@@ -72,6 +72,7 @@ const TONE_OPTIONS = [
 ]
 
 const LENGTH_OPTIONS = [100, 150, 200, 300, '직접 입력']
+const SHORTEN_LENGTH_OPTIONS = [30, 50, 100, 150, '직접 입력']
 
 const DEFAULT_GOAL_BY_TYPE = {
   '가게 소개': '방문을 결정하도록',
@@ -1562,6 +1563,8 @@ function CopyBlock({ label, text, disabled, onCopied }) {
       <pre className="request-box">{text}</pre>
       <div className="action-row">
         <button className="btn btn-primary" disabled={disabled} onClick={doCopy}>{label ? `${label}용 복사하기` : '전체 복사'}</button>
+        <a className="btn btn-outline" href="https://chat.openai.com/" target="_blank" rel="noopener noreferrer">ChatGPT 열기 ↗</a>
+        <a className="btn btn-outline" href="https://claude.ai/new" target="_blank" rel="noopener noreferrer">Claude 열기 ↗</a>
       </div>
       {status && <p className="field-hint">{status}</p>}
       {showManual && (
@@ -1679,6 +1682,7 @@ function RewriteBuilder({ profile, task, onBack, initialDirection, initialNewPla
   const [highlight, setHighlight] = useState('')
   const [experience, setExperience] = useState('')
   const [targetLength, setTargetLength] = useState('')
+  const [targetLengthChip, setTargetLengthChip] = useState('')
   const [newPlatform, setNewPlatform] = useState(initialNewPlatform || '')
   const [isReviewTarget, setIsReviewTarget] = useState(false)
   const [rwReviewText, setRwReviewText] = useState('')
@@ -1787,7 +1791,20 @@ function RewriteBuilder({ profile, task, onBack, initialDirection, initialNewPla
           {direction === 'shorter' && (
             <div className="field">
               <label>목표 글자 수</label>
-              <input type="number" min={30} max={1000} value={targetLength} onChange={(e) => setTargetLength(e.target.value)} placeholder="30~1000" />
+              <div className="chip-row">
+                {SHORTEN_LENGTH_OPTIONS.map((n) => (
+                  <button
+                    key={n}
+                    className={`chip ${targetLengthChip === n ? 'chip-active' : ''}`}
+                    onClick={() => { setTargetLengthChip(n); setTargetLength(n === '직접 입력' ? '' : String(n)) }}
+                  >
+                    {n === '직접 입력' ? n : `${n}자`}
+                  </button>
+                ))}
+              </div>
+              {targetLengthChip === '직접 입력' && (
+                <input type="number" min={30} max={1000} value={targetLength} onChange={(e) => setTargetLength(e.target.value)} placeholder="30~1000" />
+              )}
             </div>
           )}
           {direction === 'otherPlatform' && (
@@ -1820,6 +1837,8 @@ function RewriteBuilder({ profile, task, onBack, initialDirection, initialNewPla
               <pre className="request-box">{resultText}</pre>
               <div className="action-row sticky-action">
                 <button className="btn btn-primary" onClick={copyResult}>수정 요청 전체 복사</button>
+                <a className="btn btn-outline" href="https://chat.openai.com/" target="_blank" rel="noopener noreferrer">ChatGPT 열기 ↗</a>
+                <a className="btn btn-outline" href="https://claude.ai/new" target="_blank" rel="noopener noreferrer">Claude 열기 ↗</a>
               </div>
               {copyStatus && <p className="field-hint">{copyStatus}</p>}
               <p className="field-hint">이 버튼을 눌러도 위 원문 자체는 바뀌지 않아요. 새 요청 문장만 만들어져요.</p>
