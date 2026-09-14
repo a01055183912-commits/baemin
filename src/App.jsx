@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react'
 import QRCode from 'qrcode'
 
 /* ============================================================
- * AI로 만드는 우리 가게 홍보 글쓰기 — 우리 가게 요청 문장 도우미
+ * AI 활용, 플랫폼별로 통하는 홍보 글쓰기 — 우리 가게 요청 문장 도우미
  * 단일 파일 React 컴포넌트. AI API 호출 없음. localStorage 등 브라우저 저장 없음.
  * ============================================================ */
 
@@ -2132,7 +2132,7 @@ function App() {
         <aside className="brand-pane">
           <div className="brand-top">
             <Mascot size={104} />
-            <h1>AI로 만드는<br />우리 가게 홍보 글쓰기</h1>
+            <h1>AI 활용,<br />플랫폼별로 통하는<br />홍보 글쓰기</h1>
             <p className="app-subtitle">우리 가게 요청 문장 도우미</p>
           </div>
 
