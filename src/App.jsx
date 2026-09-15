@@ -21,6 +21,7 @@ const PROFILE_FIELDS = [
   { key: 'philosophy', no: 10, label: '사장님의 철학', required: false, tip: '왜 이 장사를 하는지 한 문장', bad: '열심히 합니다', good: '매일 먹어도 부담 없는 한 그릇' },
   { key: 'tone', no: 11, label: '쓰고 싶은 말투', required: false, tip: '형용사 2~3개 + 누가 말하는지', bad: '알아서 잘', good: '과장 없이 담백하고 정감 있게, 사장님이 직접 말하듯' },
   { key: 'avoid', no: 12, label: '쓰지 않을 표현', required: true, important: true, tip: '미리 금지할 단어', bad: '과장 금지', good: '최고, 대박, 인생맛집, 국내 유일, 미친 맛' },
+  { key: 'address', no: 13, label: '상세 주소', required: false, tip: '정확한 지번·도로명 주소, 층수 포함', bad: '서면 근처', good: '부산광역시 부산진구 가상로 20, 1층' },
 ]
 
 const CORE_KEYS = ['name', 'category', 'menuPrice', 'strength', 'avoid']
@@ -31,20 +32,21 @@ const EXAMPLE_PROFILE = {
   category: '돼지국밥 전문점',
   location: '부산 서면, 오피스 밀집 지역 이면도로',
   menuPrice: '얼큰돼지국밥(10,000원), 수육백반(13,000원)',
-  menuFeature: '매일 아침 직접 끓이는 사골 육수, 국내산 돼지고기만',
+  menuFeature: '매일 아침 직접 끓이는 사골 육수, 국내산 돼지고기만 사용',
   customer: '평일 점심 직장인 / 주말 가족 단위',
   strength: '20년 한자리, 재료를 한 번도 바꾸지 않은 것',
   priceRange: '9,000~13,000원',
-  mood: '오래됐지만 깨끗하고 편안한, 혼밥도 눈치 안 보이는',
+  mood: '오래됐지만 깨끗하고 편안한 분위기, 혼밥도 눈치 보이지 않는 곳',
   philosophy: '매일 먹어도 부담 없는 한 그릇',
   tone: '과장 없이 담백하고 정감 있게, 사장님이 직접 이야기하듯',
   avoid: '최고, 대박, 인생맛집, 국내 유일, 미친 맛',
+  address: '부산광역시 부산진구 가상로 20, 1층',
 }
 
 const EMPTY_PROFILE = {
   name: '', category: '', location: '', menuPrice: '', menuFeature: '',
   customer: '', strength: '', priceRange: '', mood: '', philosophy: '',
-  tone: '', avoid: '',
+  tone: '', avoid: '', address: '',
 }
 
 const POST_TYPES = ['가게 소개', '메뉴 설명', '이벤트 안내', 'SNS 문구', '리뷰 답변', '오늘의 상황 안내']
