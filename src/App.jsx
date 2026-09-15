@@ -15,7 +15,7 @@ const PROFILE_FIELDS = [
   { key: 'menuPrice', no: 3, label: '대표메뉴·가격', required: true, tip: '2~3개, 가격 포함', bad: '국밥 등', good: '얼큰돼지국밥 10,000원, 수육백반 13,000원' },
   { key: 'strength', no: 4, label: '우리 가게 강점', required: true, important: true, tip: '남이 흉내 못 낼 것, 숫자', bad: '맛과 서비스', good: '20년 한자리에서 같은 재료로 끓이는 국밥' },
   { key: 'avoid', no: 5, label: '쓰지 않을 표현', required: true, important: true, tip: '미리 금지할 단어', bad: '과장 금지', good: '최고, 대박, 인생맛집, 국내 유일, 미친 맛' },
-  // 선택 8칸 — 6~13번, 채울수록 글이 우리 가게에 가까워져요
+  // 선택 7칸 — 6~12번, 채울수록 글이 우리 가게에 가까워져요
   { key: 'location', no: 6, label: '위치·상권', required: false, tip: '동네 이름 + 상권의 성격', bad: '역 근처', good: '부산 서면, 평일 점심 직장인이 많은 상권' },
   { key: 'menuFeature', no: 7, label: '메뉴의 특징', required: false, important: true, tip: '형용사 대신 사실', bad: '정성 가득한 맛', good: '매일 아침 직접 끓이는 사골 육수' },
   { key: 'customer', no: 8, label: '주요 고객', required: false, tip: '시간대별로 나눠서', bad: '누구나', good: '평일 점심 직장인, 주말 가족 손님' },
@@ -23,7 +23,6 @@ const PROFILE_FIELDS = [
   { key: 'mood', no: 10, label: '분위기', required: false, tip: '손님이 느끼는 공간감', bad: '좋아요', good: '오래됐지만 깨끗하고 혼밥도 편안한 곳' },
   { key: 'philosophy', no: 11, label: '사장님의 철학', required: false, tip: '왜 이 장사를 하는지 한 문장', bad: '열심히 합니다', good: '매일 먹어도 부담 없는 한 그릇' },
   { key: 'tone', no: 12, label: '쓰고 싶은 말투', required: false, tip: '형용사 2~3개 + 누가 말하는지', bad: '알아서 잘', good: '과장 없이 담백하고 정감 있게, 사장님이 직접 말하듯' },
-  { key: 'address', no: 13, label: '상세 주소', required: false, tip: '정확한 지번·도로명 주소, 층수 포함', bad: '서면 근처', good: '부산광역시 부산진구 가상로 20, 1층' },
 ]
 
 const CORE_KEYS = ['name', 'category', 'menuPrice', 'strength', 'avoid']
@@ -42,13 +41,12 @@ const EXAMPLE_PROFILE = {
   philosophy: '매일 먹어도 부담 없는 한 그릇',
   tone: '과장 없이 담백하고 정감 있게, 사장님이 직접 이야기하듯',
   avoid: '최고, 대박, 인생맛집, 국내 유일, 미친 맛',
-  address: '부산광역시 부산진구 가상로 20, 1층',
 }
 
 const EMPTY_PROFILE = {
   name: '', category: '', location: '', menuPrice: '', menuFeature: '',
   customer: '', strength: '', priceRange: '', mood: '', philosophy: '',
-  tone: '', avoid: '', address: '',
+  tone: '', avoid: '',
 }
 
 const POST_TYPES = ['가게 소개', '메뉴 설명', '이벤트 안내', 'SNS 문구', '리뷰 답변', '오늘의 상황 안내']
