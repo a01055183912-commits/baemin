@@ -96,7 +96,7 @@ function resolvePlacement(platform, postType, opts) {
 
   const table = {
     '배민앱': {
-      '가게 소개': { place: '가게 소개', rule: '가게 소개 영역에 게시합니다(입력 한도 최대 500자). "무엇이 다른 가게인지"가 드러나도록 대표메뉴와 구체적 강점으로 손님의 선택을 돕는 문장으로 써주세요. 외부 주문·결제 유도, 외부 링크·SNS 홍보 문구는 넣지 마세요.', defaultLen: 150 },
+      '가게 소개': { place: '가게 소개', rule: '가게 소개 영역에 게시합니다(입력 한도 최대 500자). 배민은 손님이 메뉴를 고르고 바로 주문하는 "메뉴판 겸 주문대"입니다. 대표메뉴와 가격, 맛의 특징을 앞부분에 먼저 보여주고, "무엇이 다른 가게인지"가 드러나는 구체적 강점으로 손님의 선택을 도와주세요. 외부 주문·결제 유도, 외부 링크·SNS 홍보 문구는 넣지 마세요.', defaultLen: 150 },
       '메뉴 설명': { place: '메뉴 설명', rule: '메뉴 설명 영역에 게시합니다. 맛·식감·재료·구성처럼 주문 결정에 필요한 구체적 정보를 우선해주세요. "정성껏 준비했습니다" 같은 정보 없는 문장 대신 실제 재료·조리 방식을 써주세요.', defaultLen: 100 },
       '이벤트 안내': { place: '사장님 공지', rule: '사장님 공지 영역에 게시합니다. 날짜가 먼저 오도록, 변경 사항·혜택·조건을 명확히 3줄 이내로 써주세요.', defaultLen: 150 },
       'SNS 문구': { place: '사장님 공지', rule: '사장님 공지 영역에 게시합니다. 날짜가 먼저 오도록, 변경 사항·혜택·조건을 명확히 3줄 이내로 써주세요.', defaultLen: 150 },
@@ -104,7 +104,7 @@ function resolvePlacement(platform, postType, opts) {
       '리뷰 답변': { place: '리뷰 답변', rule: '실제 손님이 남긴 표현에 반응해 답글을 써주세요. 마케팅용 해시태그는 넣지 마세요.', defaultLen: 100 },
     },
     '네이버 플레이스': {
-      '가게 소개': { place: '업체 상세설명(초안)', rule: '업체 상세설명 초안입니다. 위치·이용 상황·메뉴·가격처럼 검색해서 비교하는 손님에게 필요한 정보를 정확히 써주세요. 특정 키워드를 반복해 넣는다고 상위 노출이 보장되지 않으니 자연스럽게만 써주세요.', defaultLen: 300 },
+      '가게 소개': { place: '업체 상세설명(초안)', rule: '업체 상세설명 초안입니다. 네이버 플레이스는 우리 가게를 알리는 "온라인 간판"입니다. 위치·영업시간·대표메뉴·가격처럼 검색해서 비교하는 손님에게 필요한 기본 정보를 깔끔하고 사실대로 보여주세요. 특정 키워드를 반복해 넣는다고 상위 노출이 보장되지 않으니 자연스럽게만 써주세요.', defaultLen: 300 },
       '메뉴 설명': { place: '업체 상세설명(초안)', rule: '업체 상세설명 초안입니다. 위치·이용 상황·메뉴·가격처럼 검색해서 비교하는 손님에게 필요한 정보를 정확히 써주세요. 특정 키워드를 반복해 넣는다고 상위 노출이 보장되지 않으니 자연스럽게만 써주세요.', defaultLen: 300 },
       '이벤트 안내': { place: '새소식·공지', rule: '새소식·공지 영역에 게시합니다. 시기성 정보와 조건을 우선해주세요.', defaultLen: 300 },
       'SNS 문구': { place: '새소식·공지', rule: '새소식·공지 영역에 게시합니다. 시기성 정보와 조건을 우선해주세요.', defaultLen: 300 },
@@ -112,7 +112,7 @@ function resolvePlacement(platform, postType, opts) {
       '리뷰 답변': { place: '리뷰 답변', rule: '실제 손님이 남긴 표현에 반응해 답글을 써주세요. 마케팅용 해시태그는 넣지 마세요.', defaultLen: 100 },
     },
     '구글맵': {
-      '가게 소개': { place: '업체 설명(초안)', rule: '업체 설명 초안입니다. 외국인·관광객, 지도에서 근처를 찾는 사람 기준으로 업종·위치·대표메뉴 중심으로 써주세요. 판촉·특가 중심으로 쓰지 말 것, 링크 금지가 구글의 정책입니다.', defaultLen: 100, english: englishOn },
+      '가게 소개': { place: '업체 설명(초안)', rule: '업체 설명 초안입니다. 구글맵은 "지도이자 신뢰 창구"입니다. 정확한 위치와 영업 정보를 우선하고, 가게 특징은 짧게만 덧붙이세요. 외국인·관광객, 지도에서 근처를 찾는 사람 기준으로 업종·위치 중심으로 써주세요. 판촉·특가 중심으로 쓰지 말 것, 링크 금지가 구글의 정책입니다.', defaultLen: 100, english: englishOn },
       '메뉴 설명': { place: '업체 설명(초안)', rule: '업체 설명 초안입니다. 외국인·관광객, 지도에서 근처를 찾는 사람 기준으로 업종·위치·대표메뉴 중심으로 써주세요. 판촉·특가 중심으로 쓰지 말 것, 링크 금지가 구글의 정책입니다.', defaultLen: 100, english: englishOn },
       '이벤트 안내': { place: '업데이트 게시물(초안)', rule: '업데이트 게시물 초안입니다. 행사 사실과 조건을 포함하되, 가격·할인을 전면에 내세우지 마세요.', defaultLen: 100, english: englishOn },
       'SNS 문구': { place: '업데이트 게시물(초안)', rule: '업데이트 게시물 초안입니다.', defaultLen: 100, english: englishOn },
@@ -258,11 +258,11 @@ export function wrapCodeBlock(text) {
 /* ---------------- 빠른 미리보기 (AI 호출 없이, 입력값을 그대로 조합) ---------------- */
 
 const QUICK_PREVIEW_PLATFORMS = [
-  { key: '배민앱', label: '배민 · 가게소개', dot: '#2AC1BC', limit: 500 },
-  { key: '네이버 플레이스', label: '네이버 플레이스 · 소개', dot: '#03C75A', limit: null,
+  { key: '배민앱', label: '배민 · 가게소개', role: '메뉴판 겸 주문대', dot: '#2AC1BC', limit: 500 },
+  { key: '네이버 플레이스', label: '네이버 플레이스 · 소개', role: '온라인 간판', dot: '#03C75A', limit: null,
     note: '실제 등록할 때는 영업시간·휴무일·정확한 위치·주차 정보를 해당 항목에 함께 갖춰 주세요. 소개글에 모두 넣을 필요는 없지만, 방문 결정에 필요한 정보입니다. 확인되지 않은 내용은 추가하지 마세요.' },
-  { key: '구글맵', label: '구글맵 · 업체 설명', dot: '#4285F4', limit: null },
-  { key: '인스타그램', label: '인스타그램 · 게시글', dot: '#C13584', limit: null },
+  { key: '구글맵', label: '구글맵 · 업체 설명', role: '지도이자 신뢰 창구', dot: '#4285F4', limit: null },
+  { key: '인스타그램', label: '인스타그램 · 게시글', role: '관심·기억·공유를 만드는 콘텐츠', dot: '#C13584', limit: null },
 ]
 
 export function buildQuickDraft(profile, platformKey) {
@@ -271,24 +271,24 @@ export function buildQuickDraft(profile, platformKey) {
   const strength = (profile.strength || '').trim()
   const location = (profile.location || '').trim()
   const category = (profile.category || '').trim()
-  const customer = (profile.customer || '').trim()
+  const priceRange = (profile.priceRange || '').trim()
   const philosophy = (profile.philosophy || '').trim()
 
   const parts = []
   if (platformKey === '배민앱') {
-    if (menuFeature) parts.push(`${menuFeature}.`)
+    // 메뉴판 겸 주문대: 대표메뉴·가격을 맨 먼저, 핵심부터 보여준다
     if (menuPrice) parts.push(`대표메뉴는 ${menuPrice}입니다.`)
+    if (menuFeature) parts.push(`${menuFeature}.`)
     if (strength) parts.push(`${strength}.`)
   } else if (platformKey === '네이버 플레이스') {
+    // 온라인 간판: 위치·영업시간·주차·대표메뉴 같은 기본 정보를 사실대로만
     const place = [location, category].filter(Boolean).join(', ')
     if (place) parts.push(`${place}에서 운영하는 곳입니다.`)
-    if (menuFeature) parts.push(`${menuFeature}.`)
-    if (strength) parts.push(`${strength}.`)
     if (menuPrice) parts.push(`대표메뉴는 ${menuPrice}입니다.`)
-    if (customer) parts.push(`주요 손님: ${customer}.`)
+    if (priceRange) parts.push(`가격대는 ${priceRange}입니다.`)
   } else if (platformKey === '구글맵') {
+    // 지도이자 신뢰 창구: 정확한 위치를 우선하고, 가게 특징은 짧게만
     if (location) parts.push(`${location}에 있습니다.`)
-    if (menuPrice) parts.push(`대표메뉴는 ${menuPrice}입니다.`)
     if (strength) parts.push(`${strength}.`)
   } else if (platformKey === '인스타그램') {
     if (philosophy) parts.push(`${philosophy}.`)
@@ -1906,6 +1906,7 @@ function QuickPreviewCard({ profile, platform }) {
         <span className="quick-preview-label">{platform.label}</span>
         <span className="quick-preview-count">{chars.withSpaces}자{platform.limit ? ` / ${platform.limit}` : ''}</span>
       </div>
+      {platform.role && <p className="quick-preview-role">이 플랫폼의 역할: {platform.role}</p>}
       <p className="quick-preview-text">{text || '입력한 사실이 아직 부족해 초안을 만들 수 없어요.'}</p>
       {text && (
         <p className={`quick-preview-badge ${ok ? 'quick-preview-ok' : 'quick-preview-warn'}`}>
@@ -1929,7 +1930,7 @@ function QuickMultiPlatformPreview({ profile }) {
   return (
     <details className="backup-panel" open>
       <summary>AI 없이 바로 미리보기 (규칙 기반 초안)</summary>
-      <p className="field-hint">소개서에 적은 사실만 그대로 조합한 초안이에요. AI를 부르지 않아서 무료이고 바로 볼 수 있지만, 문장이 매끄럽지 않을 수 있어요. 더 다듬고 싶으면 아래 "AI에게 부탁할 문장"을 ChatGPT나 Claude에 붙여 넣어주세요.</p>
+      <p className="field-hint">같은 가게라도 플랫폼마다 역할이 다르면 쓰는 말도 달라져야 해요. 소개서에 적은 사실만 그대로 조합한 초안이에요. AI를 부르지 않아서 무료이고 바로 볼 수 있지만, 문장이 매끄럽지 않을 수 있어요. 더 다듬고 싶으면 아래 "AI에게 부탁할 문장"을 ChatGPT나 Claude에 붙여 넣어주세요.</p>
       <div className="quick-preview-grid">
         {QUICK_PREVIEW_PLATFORMS.map((p) => <QuickPreviewCard key={p.key} profile={profile} platform={p} />)}
       </div>
@@ -2634,6 +2635,7 @@ input:focus, textarea:focus, select:focus, button:focus { outline: 3px solid #9b
 .quick-preview-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
 .quick-preview-label { font-weight: 700; font-size: 13.5px; flex: 1; }
 .quick-preview-count { font-size: 12px; color: #777; }
+.quick-preview-role { font-size: 11.5px; color: #17948F; font-weight: 700; margin: -2px 0 6px; }
 .quick-preview-text { font-size: 13.5px; line-height: 1.6; margin: 0 0 8px; white-space: pre-wrap; word-break: break-word; }
 .quick-preview-badge { font-size: 12px; border-radius: 8px; padding: 6px 8px; margin: 0 0 8px; }
 .quick-preview-ok { background: #E4FBF9; color: #0F6B67; }
