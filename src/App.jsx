@@ -906,6 +906,36 @@ function StoreProfile({ profile, setProfile, onGoNext }) {
     URL.revokeObjectURL(url)
   }
 
+  async function downloadWordDoc() {
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel } = await import('docx')
+    const storeName = (profile.name || '').trim() || '우리 가게'
+    const today = new Date()
+    const dateStr = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`
+
+    const children = [
+      new Paragraph({ heading: HeadingLevel.TITLE, children: [new TextRun({ text: `${storeName} 소개서` })] }),
+      new Paragraph({ children: [new TextRun({ text: `작성일: ${dateStr}`, color: '888888' })] }),
+      new Paragraph({ text: '' }),
+    ]
+    PROFILE_FIELDS.forEach((f) => {
+      const value = (profile[f.key] || '').trim() || '(입력 안 함)'
+      children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun({ text: `${f.no}. ${f.label}`, bold: true })] }))
+      children.push(new Paragraph({ children: [new TextRun({ text: value })] }))
+      children.push(new Paragraph({ text: '' }))
+    })
+
+    const doc = new Document({ sections: [{ children }] })
+    const blob = await Packer.toBlob(doc)
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `우리가게소개서_${storeName.replace(/[^\w가-힣]/g, '')}.docx`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
   function handleFileChosen(e) {
     const file = e.target.files && e.target.files[0]
     if (!file) return
@@ -1019,12 +1049,14 @@ function StoreProfile({ profile, setProfile, onGoNext }) {
         </p>
         <div className="action-row">
           <button className="btn btn-outline" onClick={copyProfileText}>소개서 복사</button>
-          <button className="btn btn-outline" onClick={downloadBackup}>소개서 파일로 받기</button>
+          <button className="btn btn-outline" onClick={downloadBackup}>소개서 파일로 받기 (.json)</button>
+          <button className="btn btn-outline" onClick={downloadWordDoc}>소개서 문서로 받기 (.docx)</button>
           <button className="btn btn-outline" onClick={() => fileInputRef.current && fileInputRef.current.click()}>저장한 소개서 불러오기</button>
           <input ref={fileInputRef} type="file" accept="application/json" style={{ display: 'none' }} onChange={handleFileChosen} />
         </div>
         {copyMsg && <p className="field-hint">{copyMsg}</p>}
         {loadMsg && <p className="field-hint">{loadMsg}</p>}
+        <p className="field-hint">.json 파일은 이 앱에 나중에 다시 불러오기 위한 백업용이에요. .docx 파일은 워드나 한글(HWP) 프로그램에서 바로 열어 읽고 인쇄할 수 있는 문서예요(HWP는 최근 버전에서 .docx 열기를 지원해요). .docx는 이 앱에 다시 불러올 수는 없어요.</p>
         <p className="field-hint">백업 파일에는 리뷰, 받은 글, 요청 기록이 포함되지 않아요.</p>
       </details>
 
