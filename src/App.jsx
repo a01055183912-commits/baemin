@@ -298,6 +298,41 @@ export function buildQuickDraft(profile, platformKey) {
   return parts.filter(Boolean).join(' ')
 }
 
+const ALL_PLATFORMS_ORDER = ['배민앱', '네이버 플레이스', '구글맵', '인스타그램']
+
+export function buildAllPlatformsRequest(profile) {
+  const filledFields = PROFILE_FIELDS.filter((f) => (profile[f.key] || '').trim())
+  const profileLines = filledFields.length
+    ? filledFields.map((f) => `${f.no}. ${f.label}: ${profile[f.key].trim()}`).join('\n')
+    : '입력된 소개서 정보 없음'
+  const tone = (profile.tone || '').trim() || '담백하고 정감 있게 (기본 제안)'
+  const avoid = (profile.avoid || '').trim() || '미입력'
+
+  let out = `당신은 외식업 홍보 전문 카피라이터입니다.\n`
+  out += `아래 우리 가게 소개서에 적힌 사실만 사용해서, 플랫폼마다 고객이 궁금해하는 것에 맞는 가게 소개글을 각각 작성해주세요.\n`
+  out += `절대로 입력하지 않은 사실을 추측하거나 만들어내지 마세요.\n`
+  out += `쓰지 않을 표현을 사용하지 마세요: ${avoid}\n`
+  out += `이번 글의 말투: ${tone}\n\n`
+  out += `[우리 가게 소개서]\n${profileLines}\n\n`
+  out += `다음 4개 플랫폼용으로 각각 따로, 플랫폼 이름을 소제목으로 붙여서 작성해주세요.\n\n`
+
+  ALL_PLATFORMS_ORDER.forEach((platform, i) => {
+    const placement = resolvePlacement(platform, '가게 소개', {})
+    out += `${i + 1}. ${platform}\n`
+    out += `게시 위치: ${placement.place}\n`
+    out += `${placement.rule}\n`
+    out += `목표 분량: ${placement.defaultLen}자 안팎\n\n`
+  })
+
+  out += `[검수 원칙]\n`
+  out += `- 입력하지 않은 사실은 어느 글에도 넣지 마세요.\n`
+  out += `- "최고·유명한·맛집·인생맛집·무조건" 같은 근거 없는 과장 표현은 쓰지 마세요.\n`
+  out += `- 네 글 모두 같은 사실을 쓰되, 플랫폼별 고객 목적에 맞게 강조하는 부분과 표현 방식만 다르게 해주세요.\n`
+  out += `- 마지막에는 각 글에서 어떤 "우리 가게 소개서" 항목을 사용했는지 따로 알려주세요.\n`
+
+  return out
+}
+
 const PHONE_RE = /(01[016789][-\s]?\d{3,4}[-\s]?\d{4})/g
 const LANDLINE_RE = /(0[2-6]\d?[-\s]?\d{3,4}[-\s]?\d{4})/g
 const RRN_RE = /(\d{6}[-\s]?[1-4]\d{6})/g
@@ -1872,6 +1907,18 @@ function QuickMultiPlatformPreview({ profile }) {
   )
 }
 
+function AllPlatformsPromptPanel({ profile, onSaveHistory }) {
+  const [open, setOpen] = useState(false)
+  const text = useMemo(() => wrapCodeBlock(buildAllPlatformsRequest(profile)), [profile])
+  return (
+    <details className="backup-panel" open={open} onToggle={(e) => setOpen(e.target.open)}>
+      <summary>4개 플랫폼용 프롬프트 한 번에 만들기</summary>
+      <p className="field-hint">이 문장 하나만 복사해서 ChatGPT나 Claude에 붙여 넣으면, 배민·네이버·구글맵·인스타그램용 소개글 4개를 한 번에 받을 수 있어요.</p>
+      <CopyBlock text={text} disabled={false} onCopied={(t) => onSaveHistory(t, '4개 플랫폼 한번에')} />
+    </details>
+  )
+}
+
 function RequestPreview({ profile, task, history, onSaveHistory, onBack, onGoRewrite }) {
   const check = validateTask(profile, task)
   const sensitiveItems = collectSensitive(profile, task)
@@ -1905,6 +1952,7 @@ function RequestPreview({ profile, task, history, onSaveHistory, onBack, onGoRew
       <p className="lead">이 문장을 복사해 ChatGPT나 Claude에 붙여 넣어주세요.</p>
 
       {profileStat.coreComplete && <QuickMultiPlatformPreview profile={profile} />}
+      {profileStat.coreComplete && <AllPlatformsPromptPanel profile={profile} onSaveHistory={onSaveHistory} />}
 
       {!check.valid && (
         <div className="confirm-box">
