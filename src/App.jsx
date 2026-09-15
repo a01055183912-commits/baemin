@@ -15,7 +15,7 @@ const PROFILE_FIELDS = [
   { key: 'menuPrice', no: 3, label: '대표메뉴·가격', required: true, tip: '2~3개, 가격 포함', bad: '국밥 등', good: '얼큰돼지국밥 10,000원, 수육백반 13,000원' },
   { key: 'strength', no: 4, label: '우리 가게 강점', required: true, important: true, tip: '남이 흉내 못 낼 것, 숫자', bad: '맛과 서비스', good: '20년 한자리에서 같은 재료로 끓이는 국밥' },
   { key: 'avoid', no: 5, label: '쓰지 않을 표현', required: true, important: true, tip: '미리 금지할 단어', bad: '과장 금지', good: '최고, 대박, 인생맛집, 국내 유일, 미친 맛' },
-  // 선택 9칸 — 6~14번, 채울수록 글이 우리 가게에 가까워져요
+  // 선택 8칸 — 6~13번, 채울수록 글이 우리 가게에 가까워져요
   { key: 'location', no: 6, label: '위치·상권', required: false, tip: '동네 이름 + 상권의 성격', bad: '역 근처', good: '부산 서면, 평일 점심 직장인이 많은 상권' },
   { key: 'menuFeature', no: 7, label: '메뉴의 특징', required: false, important: true, tip: '형용사 대신 사실', bad: '정성 가득한 맛', good: '매일 아침 직접 끓이는 사골 육수' },
   { key: 'customer', no: 8, label: '주요 고객', required: false, tip: '시간대별로 나눠서', bad: '누구나', good: '평일 점심 직장인, 주말 가족 손님' },
@@ -24,7 +24,6 @@ const PROFILE_FIELDS = [
   { key: 'philosophy', no: 11, label: '사장님의 철학', required: false, tip: '왜 이 장사를 하는지 한 문장', bad: '열심히 합니다', good: '매일 먹어도 부담 없는 한 그릇' },
   { key: 'tone', no: 12, label: '쓰고 싶은 말투', required: false, tip: '형용사 2~3개 + 누가 말하는지', bad: '알아서 잘', good: '과장 없이 담백하고 정감 있게, 사장님이 직접 말하듯' },
   { key: 'address', no: 13, label: '상세 주소', required: false, tip: '정확한 지번·도로명 주소, 층수 포함', bad: '서면 근처', good: '부산광역시 부산진구 가상로 20, 1층' },
-  { key: 'naverKeywords', no: 14, label: '네이버 대표키워드', required: false, tip: '손님이 검색할 상호명·메뉴명·서비스명, 최대 5개', bad: '맛집, 최고, 인생맛집', good: '할매손 돼지국밥, 얼큰돼지국밥, 수육백반, 서면돼지국밥, 부산국밥맛집' },
 ]
 
 const CORE_KEYS = ['name', 'category', 'menuPrice', 'strength', 'avoid']
@@ -44,13 +43,12 @@ const EXAMPLE_PROFILE = {
   tone: '과장 없이 담백하고 정감 있게, 사장님이 직접 이야기하듯',
   avoid: '최고, 대박, 인생맛집, 국내 유일, 미친 맛',
   address: '부산광역시 부산진구 가상로 20, 1층',
-  naverKeywords: '할매손 돼지국밥, 얼큰돼지국밥, 수육백반, 서면돼지국밥, 부산국밥맛집',
 }
 
 const EMPTY_PROFILE = {
   name: '', category: '', location: '', menuPrice: '', menuFeature: '',
   customer: '', strength: '', priceRange: '', mood: '', philosophy: '',
-  tone: '', avoid: '', address: '', naverKeywords: '',
+  tone: '', avoid: '', address: '',
 }
 
 const POST_TYPES = ['가게 소개', '메뉴 설명', '이벤트 안내', 'SNS 문구', '리뷰 답변', '오늘의 상황 안내']
@@ -122,7 +120,7 @@ const PLATFORM_SPECIFIC_RULES = {
       '확인되지 않은 검색 순위, 인기 순위, 예약 순위 등을 만들어내지 마세요.',
       '가격·영업시간·주차 등 별도 입력 항목이 있는 정보는 사용자 입력값을 그대로 유지하세요.',
       '검색 노출을 보장하는 표현은 사용하지 마세요.',
-      '대표키워드(최대 5개)는 상세설명과 별도 입력란이니, 상세설명 문장 안에 키워드를 나열하지 말고 소개서의 "네이버 대표키워드" 항목을 참고해 따로 안내해주세요.',
+      '대표키워드(최대 5개)는 상세설명과 별도 입력란이니, 상세설명 문장 안에 키워드를 나열하지 마세요.',
     ],
   },
   '구글맵': {
@@ -337,7 +335,7 @@ export function wrapCodeBlock(text) {
 const QUICK_PREVIEW_PLATFORMS = [
   { key: '배민앱', label: '배민 · 가게소개', role: '메뉴판 겸 주문대', dot: '#2AC1BC', limit: 500 },
   { key: '네이버 플레이스', label: '네이버 플레이스 · 소개', role: '온라인 간판', dot: '#03C75A', limit: 2000,
-    note: '실제 등록할 때는 영업시간·휴무일·정확한 위치·주차 정보를 해당 항목에 함께 갖춰 주세요. 소개글에 모두 넣을 필요는 없지만, 방문 결정에 필요한 정보입니다. 확인되지 않은 내용은 추가하지 마세요. 대표키워드(최대 5개)는 상세설명과 별도 항목이니 소개서 14번 칸을 참고해 따로 등록해주세요.' },
+    note: '실제 등록할 때는 영업시간·휴무일·정확한 위치·주차 정보를 해당 항목에 함께 갖춰 주세요. 소개글에 모두 넣을 필요는 없지만, 방문 결정에 필요한 정보입니다. 확인되지 않은 내용은 추가하지 마세요. 대표키워드(최대 5개)는 상세설명과 별도 항목이니 네이버 등록 화면에서 따로 입력해주세요.' },
   { key: '구글맵', label: '구글맵 · 업체 설명', role: '지도이자 신뢰 창구', dot: '#4285F4', limit: 750 },
   { key: '인스타그램', label: '인스타그램 · 게시글', role: '관심·기억·공유를 만드는 콘텐츠', dot: '#C13584', limit: 2200 },
 ]
