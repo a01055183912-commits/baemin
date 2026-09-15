@@ -255,6 +255,47 @@ export function wrapCodeBlock(text) {
   return '```\n' + text + '\n```'
 }
 
+/* ---------------- 빠른 미리보기 (AI 호출 없이, 입력값을 그대로 조합) ---------------- */
+
+const QUICK_PREVIEW_PLATFORMS = [
+  { key: '배민앱', label: '배민 · 가게소개', dot: '#2AC1BC', limit: 500 },
+  { key: '네이버 플레이스', label: '네이버 플레이스 · 소개', dot: '#03C75A', limit: null },
+  { key: '구글맵', label: '구글맵 · 업체 설명', dot: '#4285F4', limit: null },
+  { key: '인스타그램', label: '인스타그램 · 게시글', dot: '#C13584', limit: null },
+]
+
+export function buildQuickDraft(profile, platformKey) {
+  const menuFeature = (profile.menuFeature || '').trim()
+  const menuPrice = (profile.menuPrice || '').trim()
+  const strength = (profile.strength || '').trim()
+  const location = (profile.location || '').trim()
+  const category = (profile.category || '').trim()
+  const customer = (profile.customer || '').trim()
+  const philosophy = (profile.philosophy || '').trim()
+
+  const parts = []
+  if (platformKey === '배민앱') {
+    if (menuFeature) parts.push(`${menuFeature}.`)
+    if (menuPrice) parts.push(`대표메뉴는 ${menuPrice}입니다.`)
+    if (strength) parts.push(`${strength}.`)
+  } else if (platformKey === '네이버 플레이스') {
+    const place = [location, category].filter(Boolean).join(', ')
+    if (place) parts.push(`${place}에서 운영하는 곳입니다.`)
+    if (menuPrice) parts.push(`대표메뉴는 ${menuPrice}입니다.`)
+    if (customer) parts.push(`주요 손님: ${customer}.`)
+    if (strength) parts.push(`${strength}.`)
+  } else if (platformKey === '구글맵') {
+    if (location) parts.push(`${location}에 있습니다.`)
+    if (menuPrice) parts.push(`대표메뉴는 ${menuPrice}입니다.`)
+    if (strength) parts.push(`${strength}.`)
+  } else if (platformKey === '인스타그램') {
+    if (philosophy) parts.push(`${philosophy}.`)
+    if (menuFeature) parts.push(`${menuFeature}.`)
+    if (strength) parts.push(`${strength}.`)
+  }
+  return parts.filter(Boolean).join(' ')
+}
+
 const PHONE_RE = /(01[016789][-\s]?\d{3,4}[-\s]?\d{4})/g
 const LANDLINE_RE = /(0[2-6]\d?[-\s]?\d{3,4}[-\s]?\d{4})/g
 const RRN_RE = /(\d{6}[-\s]?[1-4]\d{6})/g
@@ -1771,6 +1812,62 @@ function CopyBlock({ label, text, disabled, onCopied }) {
   )
 }
 
+function QuickPreviewCard({ profile, platform }) {
+  const text = buildQuickDraft(profile, platform.key)
+  const chars = countCharacters(text)
+  const hits = findForbiddenHits(text, profile.avoid)
+  const overLimit = platform.limit && chars.withSpaces > platform.limit
+  const ok = hits.length === 0 && !overLimit
+  const [status, setStatus] = useState('')
+
+  function doCopy() {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        () => setStatus('복사했어요.'),
+        () => setStatus('복사에 실패했어요. 위 글을 직접 선택해 복사해주세요.')
+      )
+    } else {
+      setStatus('이 브라우저는 자동 복사를 지원하지 않아요. 위 글을 직접 선택해 복사해주세요.')
+    }
+  }
+
+  return (
+    <div className="quick-preview-card">
+      <div className="quick-preview-head">
+        <span className="quick-preview-dot" style={{ background: platform.dot }} />
+        <span className="quick-preview-label">{platform.label}</span>
+        <span className="quick-preview-count">{chars.withSpaces}자{platform.limit ? ` / ${platform.limit}` : ''}</span>
+      </div>
+      <p className="quick-preview-text">{text || '입력한 사실이 아직 부족해 초안을 만들 수 없어요.'}</p>
+      {text && (
+        <p className={`quick-preview-badge ${ok ? 'quick-preview-ok' : 'quick-preview-warn'}`}>
+          {ok
+            ? '과장 표현 없음 · 입력 기준 이내'
+            : hits.length > 0
+              ? `쓰지 않기로 한 표현이 보여요: ${hits.join(', ')}`
+              : `입력 기준(${platform.limit}자)을 넘었어요`}
+        </p>
+      )}
+      <div className="action-row">
+        <button className="btn btn-outline" disabled={!text} onClick={doCopy}>복사</button>
+      </div>
+      {status && <p className="field-hint">{status}</p>}
+    </div>
+  )
+}
+
+function QuickMultiPlatformPreview({ profile }) {
+  return (
+    <details className="backup-panel" open>
+      <summary>AI 없이 바로 미리보기 (규칙 기반 초안)</summary>
+      <p className="field-hint">소개서에 적은 사실만 그대로 조합한 초안이에요. AI를 부르지 않아서 무료이고 바로 볼 수 있지만, 문장이 매끄럽지 않을 수 있어요. 더 다듬고 싶으면 아래 "AI에게 부탁할 문장"을 ChatGPT나 Claude에 붙여 넣어주세요.</p>
+      <div className="quick-preview-grid">
+        {QUICK_PREVIEW_PLATFORMS.map((p) => <QuickPreviewCard key={p.key} profile={profile} platform={p} />)}
+      </div>
+    </details>
+  )
+}
+
 function RequestPreview({ profile, task, history, onSaveHistory, onBack, onGoRewrite }) {
   const check = validateTask(profile, task)
   const sensitiveItems = collectSensitive(profile, task)
@@ -1796,11 +1893,14 @@ function RequestPreview({ profile, task, history, onSaveHistory, onBack, onGoRew
 
   const [historyOpen, setHistoryOpen] = useState(false)
   const [viewing, setViewing] = useState(null)
+  const profileStat = validateProfile(profile)
 
   return (
     <div className="screen">
       <h2>AI에게 부탁할 문장</h2>
       <p className="lead">이 문장을 복사해 ChatGPT나 Claude에 붙여 넣어주세요.</p>
+
+      {profileStat.coreComplete && <QuickMultiPlatformPreview profile={profile} />}
 
       {!check.valid && (
         <div className="confirm-box">
@@ -2446,6 +2546,19 @@ input:focus, textarea:focus, select:focus, button:focus { outline: 3px solid #9b
 .quick-card-active { border-color: #2AC1BC; border-width: 2px; background: #F1FBFA; }
 .quick-detail { border: 1px solid #BFEDEA; border-top: none; border-radius: 0 0 14px 14px; margin-top: -10px; padding: 14px; background: #F7FEFE; }
 .request-box { white-space: pre-wrap; word-break: break-word; background: #F7FEFE; border: 1px solid #BFEDEA; border-radius: 12px; padding: 14px; font-size: 14px; line-height: 1.6; max-height: 60vh; overflow-y: auto; }
+.quick-preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+.quick-preview-card { border: 1px solid #e2e2e2; border-radius: 12px; padding: 12px; background: #fff; }
+.quick-preview-head { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.quick-preview-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.quick-preview-label { font-weight: 700; font-size: 13.5px; flex: 1; }
+.quick-preview-count { font-size: 12px; color: #777; }
+.quick-preview-text { font-size: 13.5px; line-height: 1.6; margin: 0 0 8px; white-space: pre-wrap; word-break: break-word; }
+.quick-preview-badge { font-size: 12px; border-radius: 8px; padding: 6px 8px; margin: 0 0 8px; }
+.quick-preview-ok { background: #E4FBF9; color: #0F6B67; }
+.quick-preview-warn { background: #FFE3E3; color: #B3261E; }
+@media (max-width: 620px) {
+  .quick-preview-grid { grid-template-columns: 1fr; }
+}
 .copy-block { margin-bottom: 18px; padding-bottom: 4px; border-bottom: 1px dashed #DCEEEC; }
 .copy-block:last-of-type { border-bottom: none; }
 .compare-col { margin-top: 8px; }
