@@ -10,7 +10,7 @@ import QRCode from 'qrcode'
 
 const PROFILE_FIELDS = [
   { key: 'name', no: 1, label: '가게명', required: true, tip: '상호 + 손님들이 부르는 이름', bad: '동네 밥집', good: '할매손 돼지국밥' },
-  { key: 'category', no: 2, label: '업종', required: false, tip: '넓게 말고 좁게', bad: '음식점', good: '돼지국밥 전문점' },
+  { key: 'category', no: 2, label: '업종', required: true, tip: '넓게 말고 좁게', bad: '음식점', good: '돼지국밥 전문점' },
   { key: 'location', no: 3, label: '위치·상권', required: false, tip: '동네 이름 + 상권의 성격', bad: '역 근처', good: '부산 서면, 평일 점심 직장인이 많은 상권' },
   { key: 'menuPrice', no: 4, label: '대표메뉴·가격', required: true, tip: '2~3개, 가격 포함', bad: '국밥 등', good: '얼큰돼지국밥 10,000원, 수육백반 13,000원' },
   { key: 'menuFeature', no: 5, label: '메뉴의 특징', required: false, important: true, tip: '형용사 대신 사실', bad: '정성 가득한 맛', good: '매일 아침 직접 끓이는 사골 육수' },
@@ -23,7 +23,7 @@ const PROFILE_FIELDS = [
   { key: 'avoid', no: 12, label: '쓰지 않을 표현', required: true, important: true, tip: '미리 금지할 단어', bad: '과장 금지', good: '최고, 대박, 인생맛집, 국내 유일, 미친 맛' },
 ]
 
-const CORE_KEYS = ['name', 'menuPrice', 'strength', 'avoid']
+const CORE_KEYS = ['name', 'category', 'menuPrice', 'strength', 'avoid']
 const AVOID_DEFAULT = '최고, 대박, 인생맛집, 국내 유일, 미친 맛'
 
 const EXAMPLE_PROFILE = {
@@ -1067,7 +1067,7 @@ function StoreProfile({ profile, setProfile, onGoNext }) {
   return (
     <div className="screen">
       <h2>우리 가게 소개서</h2>
-      <p className="lead">우리 가게 정보를 제대로 알려줘야, 우리 가게다운 글이 나옵니다. 네 가지만 적으면 시작할 수 있어요.</p>
+      <p className="lead">우리 가게 정보를 제대로 알려줘야, 우리 가게다운 글이 나옵니다. 다섯 가지만 적으면 시작할 수 있어요.</p>
 
       <PageQRCode />
 
@@ -1087,7 +1087,7 @@ function StoreProfile({ profile, setProfile, onGoNext }) {
       <div className="field-group">{requiredFields.map(renderField)}</div>
 
       <button className="btn btn-ghost" onClick={() => setExpanded((v) => !v)}>
-        {expanded ? '추가 항목 접기' : '더 우리 가게답게 알려주기 (선택, 8칸)'}
+        {expanded ? '추가 항목 접기' : `더 우리 가게답게 알려주기 (선택, ${optionalFields.length}칸)`}
       </button>
       {expanded && <div className="field-group">{optionalFields.map(renderField)}</div>}
 
