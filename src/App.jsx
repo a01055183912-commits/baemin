@@ -9,18 +9,20 @@ import QRCode from 'qrcode'
 /* ---------------- 기본 데이터 ---------------- */
 
 const PROFILE_FIELDS = [
+  // 필수 5칸 — 1~5번, 먼저 채우면 첫 글을 만들 수 있어요
   { key: 'name', no: 1, label: '가게명', required: true, tip: '상호 + 손님들이 부르는 이름', bad: '동네 밥집', good: '할매손 돼지국밥' },
   { key: 'category', no: 2, label: '업종', required: true, tip: '넓게 말고 좁게', bad: '음식점', good: '돼지국밥 전문점' },
-  { key: 'location', no: 3, label: '위치·상권', required: false, tip: '동네 이름 + 상권의 성격', bad: '역 근처', good: '부산 서면, 평일 점심 직장인이 많은 상권' },
-  { key: 'menuPrice', no: 4, label: '대표메뉴·가격', required: true, tip: '2~3개, 가격 포함', bad: '국밥 등', good: '얼큰돼지국밥 10,000원, 수육백반 13,000원' },
-  { key: 'menuFeature', no: 5, label: '메뉴의 특징', required: false, important: true, tip: '형용사 대신 사실', bad: '정성 가득한 맛', good: '매일 아침 직접 끓이는 사골 육수' },
-  { key: 'customer', no: 6, label: '주요 고객', required: false, tip: '시간대별로 나눠서', bad: '누구나', good: '평일 점심 직장인, 주말 가족 손님' },
-  { key: 'strength', no: 7, label: '우리 가게 강점', required: true, important: true, tip: '남이 흉내 못 낼 것, 숫자', bad: '맛과 서비스', good: '20년 한자리에서 같은 재료로 끓이는 국밥' },
-  { key: 'priceRange', no: 8, label: '가격대', required: false, tip: '최저~최고', bad: '저렴해요', good: '9,000~13,000원' },
-  { key: 'mood', no: 9, label: '분위기', required: false, tip: '손님이 느끼는 공간감', bad: '좋아요', good: '오래됐지만 깨끗하고 혼밥도 편안한 곳' },
-  { key: 'philosophy', no: 10, label: '사장님의 철학', required: false, tip: '왜 이 장사를 하는지 한 문장', bad: '열심히 합니다', good: '매일 먹어도 부담 없는 한 그릇' },
-  { key: 'tone', no: 11, label: '쓰고 싶은 말투', required: false, tip: '형용사 2~3개 + 누가 말하는지', bad: '알아서 잘', good: '과장 없이 담백하고 정감 있게, 사장님이 직접 말하듯' },
-  { key: 'avoid', no: 12, label: '쓰지 않을 표현', required: true, important: true, tip: '미리 금지할 단어', bad: '과장 금지', good: '최고, 대박, 인생맛집, 국내 유일, 미친 맛' },
+  { key: 'menuPrice', no: 3, label: '대표메뉴·가격', required: true, tip: '2~3개, 가격 포함', bad: '국밥 등', good: '얼큰돼지국밥 10,000원, 수육백반 13,000원' },
+  { key: 'strength', no: 4, label: '우리 가게 강점', required: true, important: true, tip: '남이 흉내 못 낼 것, 숫자', bad: '맛과 서비스', good: '20년 한자리에서 같은 재료로 끓이는 국밥' },
+  { key: 'avoid', no: 5, label: '쓰지 않을 표현', required: true, important: true, tip: '미리 금지할 단어', bad: '과장 금지', good: '최고, 대박, 인생맛집, 국내 유일, 미친 맛' },
+  // 선택 9칸 — 6~14번, 채울수록 글이 우리 가게에 가까워져요
+  { key: 'location', no: 6, label: '위치·상권', required: false, tip: '동네 이름 + 상권의 성격', bad: '역 근처', good: '부산 서면, 평일 점심 직장인이 많은 상권' },
+  { key: 'menuFeature', no: 7, label: '메뉴의 특징', required: false, important: true, tip: '형용사 대신 사실', bad: '정성 가득한 맛', good: '매일 아침 직접 끓이는 사골 육수' },
+  { key: 'customer', no: 8, label: '주요 고객', required: false, tip: '시간대별로 나눠서', bad: '누구나', good: '평일 점심 직장인, 주말 가족 손님' },
+  { key: 'priceRange', no: 9, label: '가격대', required: false, tip: '최저~최고', bad: '저렴해요', good: '9,000~13,000원' },
+  { key: 'mood', no: 10, label: '분위기', required: false, tip: '손님이 느끼는 공간감', bad: '좋아요', good: '오래됐지만 깨끗하고 혼밥도 편안한 곳' },
+  { key: 'philosophy', no: 11, label: '사장님의 철학', required: false, tip: '왜 이 장사를 하는지 한 문장', bad: '열심히 합니다', good: '매일 먹어도 부담 없는 한 그릇' },
+  { key: 'tone', no: 12, label: '쓰고 싶은 말투', required: false, tip: '형용사 2~3개 + 누가 말하는지', bad: '알아서 잘', good: '과장 없이 담백하고 정감 있게, 사장님이 직접 말하듯' },
   { key: 'address', no: 13, label: '상세 주소', required: false, tip: '정확한 지번·도로명 주소, 층수 포함', bad: '서면 근처', good: '부산광역시 부산진구 가상로 20, 1층' },
   { key: 'naverKeywords', no: 14, label: '네이버 대표키워드', required: false, tip: '손님이 검색할 상호명·메뉴명·서비스명, 최대 5개', bad: '맛집, 최고, 인생맛집', good: '할매손 돼지국밥, 얼큰돼지국밥, 수육백반, 서면돼지국밥, 부산국밥맛집' },
 ]
@@ -863,7 +865,7 @@ export function validateBackup(rawText) {
   const expectedKeys = PROFILE_FIELDS.map((f) => f.key)
   const storeKeys = Object.keys(store)
   if (storeKeys.length !== expectedKeys.length || !expectedKeys.every((k) => storeKeys.includes(k))) {
-    return { valid: false, error: '소개서 12칸과 일치하지 않는 파일이에요.' }
+    return { valid: false, error: `소개서 ${expectedKeys.length}칸과 일치하지 않는 파일이에요.` }
   }
   for (const k of expectedKeys) {
     if (typeof store[k] !== 'string') {
@@ -1149,10 +1151,10 @@ const BAEMIN_COMPARISON = [
 ]
 
 const BAEMIN_WRITING_STYLES = [
-  { title: '1. 자랑하고 싶은 메뉴', example: '오늘 하루 맛있는 불고기가 생각날 때? 배민불고기로 오세요! 좋은 재료와 정성을 가득 담아 만들고 있습니다. 배민불고기에서만 맛볼 수 있는 특제 소스 불고기와 함께…', link: '소개서 4·5번(대표메뉴·메뉴의 특징)' },
-  { title: '2. 특정 고객의 취향 저격', example: '한정된 점심 식사 시간, 빠른 식사가 필요하신가요? 그렇다면, 배민 포케가 정답입니다! 빠른 조리로 식사 시간을 단축…', link: '소개서 6번(주요 고객)' },
+  { title: '1. 자랑하고 싶은 메뉴', example: '오늘 하루 맛있는 불고기가 생각날 때? 배민불고기로 오세요! 좋은 재료와 정성을 가득 담아 만들고 있습니다. 배민불고기에서만 맛볼 수 있는 특제 소스 불고기와 함께…', link: '소개서 3·7번(대표메뉴·메뉴의 특징)' },
+  { title: '2. 특정 고객의 취향 저격', example: '한정된 점심 식사 시간, 빠른 식사가 필요하신가요? 그렇다면, 배민 포케가 정답입니다! 빠른 조리로 식사 시간을 단축…', link: '소개서 8번(주요 고객)' },
   { title: '3. 진행 중인 이벤트 안내', example: '무더운 여름 힘내시라고 8월 신규 오픈 이벤트를 준비했습니다. 배달과 픽업 주문 해주시는 모든 고객님들께 과일이나 쿠키를 랜덤으로…', link: '오늘의 상황 · 이벤트 안내' },
-  { title: '4. 특색 있는 매장 분위기 공유', example: '여름을 맞아 현지 느낌을 주고자 라탄 소품을 새롭게 배치했습니다. 직접 방문하신다면 배민 타이의 여름 분위기를…', link: '소개서 9번(분위기)' },
+  { title: '4. 특색 있는 매장 분위기 공유', example: '여름을 맞아 현지 느낌을 주고자 라탄 소품을 새롭게 배치했습니다. 직접 방문하신다면 배민 타이의 여름 분위기를…', link: '소개서 10번(분위기)' },
   { title: '5. 꼭 알려야 하는 주요 공지', example: '첫 여름 휴가를 떠나요. 8월 16일부터 19일까지 알차게 재충전하고 돌아올게요. 주문 고객님들은 휴무 날짜를 참고해주세요.', link: '오늘의 상황 · 휴무 안내' },
 ]
 
@@ -1196,7 +1198,7 @@ function BaeminOfficialTips() {
       <p className="field-hint">500자 안에 다 넣을 수 없어요. 우리 가게에 맞는 것 두세 개만 골라 쓰면 충분해요.</p>
 
       <p className="field-label" style={{ display: 'block', marginTop: 14 }}>등록 자체가 안 되는 표현 (배민 공식 기준 전체)</p>
-      <p className="field-hint">아래에 해당하는 표현이 있으면 "적용"을 눌러도 저장 자체가 안 돼요. 소개서 12번(쓰지 않을 표현)에 미리 적어두면 이런 표현이 처음부터 안 나와요.</p>
+      <p className="field-hint">아래에 해당하는 표현이 있으면 "적용"을 눌러도 저장 자체가 안 돼요. 소개서 5번(쓰지 않을 표현)에 미리 적어두면 이런 표현이 처음부터 안 나와요.</p>
       <ul className="template-list">
         {BAEMIN_REGISTRATION_BANS.map((b) => (
           <li key={b.title} className="template-item" style={{ background: '#fff' }}>
