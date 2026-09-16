@@ -141,6 +141,49 @@ function buildPlatformSpecificRules(platform) {
   return out
 }
 
+/* ---------------- 가게 소개: 간단 소개 / 상세 소개 ----------------
+ * '가게 소개' 전체 소개문을 쓸 때만 적용되는 두 가지 소개 방식.
+ * 이 앱이 제안하는 목표 분량이며, 플랫폼의 공식 입력 제한이 아니다.
+ * resolvePlacement, buildRequest, buildAllPlatformsRequest, buildQuickDraft,
+ * buildRewriteRequest가 모두 이 스펙 하나만 참조하도록 한다. */
+const INTRO_MODE_SPEC = {
+  brief: {
+    mode: 'brief',
+    label: '간단 소개',
+    hint: '핵심 정보만 짧고 빠르게 소개해요.',
+    recommendedRange: '120~200자',
+    defaultLen: 200,
+    direction: '확인된 사실 중 가게 정체성·대표메뉴 또는 음식 특징·핵심 강점 중 중요한 것만 골라 짧고 빠르게 연결해서 설명',
+    structureNote: '가게 정체성, 대표메뉴 또는 음식 특징, 핵심 강점 중 중요한 정보를 골라 자연스럽게 연결해주세요. 긴 인사말이나 메뉴·가격의 기계적인 나열은 줄여주세요. 철학을 입력했다면 짧게 반영할 수 있습니다. 확인된 사실이 적으면 이보다 짧아도 괜찮습니다.',
+  },
+  detailed: {
+    mode: 'detailed',
+    label: '상세 소개',
+    hint: '가게 이야기와 음식 특징을 충분히 소개해요.',
+    recommendedRange: '300~500자',
+    defaultLen: 500,
+    direction: '확인된 사실로 가게 정체성·철학·음식 특징을 3~4개 문단으로 설명',
+    structureNote: '간단 소개에 같은 말을 반복해 붙이지 마세요. 가게 인사·정체성 → 사장님 철학 → 음식·재료·조리 특징 → 필요한 대표메뉴 정보 → 분위기 또는 자연스러운 마무리 순으로, 입력된 항목만 골라 3~4개 짧은 문단으로 써주세요. 철학이나 분위기가 비어 있으면 해당 부분은 생략하세요. 대표메뉴 가격은 필요한 경우 활용하되, 첫 문장을 반드시 가격으로 시작할 필요는 없습니다. 확인된 사실이 적으면 권장 범위보다 짧아도 괜찮습니다. 분량을 채우려고 인기·단골·맛·건강 효과 등을 새로 만들지 마세요.',
+  },
+}
+
+function resolveIntroSpec(task) {
+  const mode = (task && task.introMode === 'detailed') ? 'detailed' : 'brief'
+  const spec = INTRO_MODE_SPEC[mode]
+  const overrideRaw = task && task.introLengthOverride
+  const override = Number(overrideRaw)
+  const targetLen = (overrideRaw && Number.isInteger(override) && override >= 30 && override <= 1000)
+    ? override
+    : spec.defaultLen
+  return { ...spec, targetLen }
+}
+
+/* 가게 소개 요청 중 실제로 간단/상세 선택이 적용되는 경우만 true.
+ * 직접 만들기의 '가게 소개'는 항상 true, 빠른 선택은 id 1·4(supportsIntroMode)만 true. */
+function introModeActive(task) {
+  return !!task && task.type === '가게 소개' && !!task.introApplies
+}
+
 const TONE_OPTIONS = [
   '소개서 말투', '담백하고 정감 있게', '친근하게', '차분하고 정중하게', '사장님이 직접 말하듯', '직접 입력',
 ]
@@ -163,13 +206,46 @@ const DEFAULT_GOAL_BY_TYPE = {
  * 글자 수는 각 플랫폼이 보장하는 "공식 규정"이 아니라 이 앱이 제안하는
  * "목표 분량"이며, 정확한 입력 한도·노출 기준은 각 플랫폼 관리자 화면에서
  * 사장님이 직접 확인하는 것이 가장 정확합니다. */
+/* 가게 소개 전용: 간단/상세 선택에 따라 게시 위치·작성 규칙·목표 분량을 분기.
+ * 다른 글 종류(메뉴 설명·이벤트 안내 등)는 이 분기와 무관하게 기존 규칙을 그대로 쓴다. */
+function introPlacementFor(platform, introMode) {
+  const mode = introMode === 'detailed' ? 'detailed' : 'brief'
+  const table = {
+    '배민앱': {
+      brief: { place: '가게 소개', rule: '가게 소개 영역에 게시합니다(입력 한도 최대 500자). 배민은 손님이 메뉴를 고르고 바로 주문하는 "메뉴판 겸 주문대"입니다. 간단 소개이니 대표메뉴와 가격, 맛의 특징, 핵심 강점 중 중요한 것만 짧고 빠르게 연결해주세요. 외부 주문·결제 유도, 외부 링크·SNS 홍보 문구는 넣지 마세요.' },
+      detailed: { place: '가게 소개', rule: '가게 소개 영역에 게시합니다(입력 한도 최대 500자). 배민은 손님이 메뉴를 고르고 바로 주문하는 "메뉴판 겸 주문대"입니다. 상세 소개이니 가게 인사·정체성 → 사장님 철학 → 음식·재료·조리 특징 → 필요한 대표메뉴 정보 → 분위기 또는 자연스러운 마무리 순으로, 입력된 항목만 골라 충분히 소개해주세요. 대표메뉴·가격은 필요한 곳에서 자연스럽게 언급하면 되고, 첫 문장을 반드시 가격으로 시작할 필요는 없습니다. 외부 주문·결제 유도, 외부 링크·SNS 홍보 문구는 넣지 마세요.' },
+    },
+    '네이버 플레이스': {
+      brief: { place: '업체 상세설명(초안, 입력 한도 최대 2,000자)', rule: '업체 상세설명 초안입니다. 네이버 플레이스는 우리 가게를 알리는 "온라인 간판"입니다. 간단 소개이니 위치·대표메뉴·핵심 강점 중 중요한 정보만 짧고 빠르게 연결해주세요. 특정 키워드를 반복해 넣는다고 상위 노출이 보장되지 않으니 자연스럽게만 써주세요. 대표키워드(최대 5개)는 상세설명과 별도 항목이니 문장 안에 억지로 나열하지 마세요.' },
+      detailed: { place: '업체 상세설명(초안, 입력 한도 최대 2,000자)', rule: '업체 상세설명 초안입니다. 네이버 플레이스는 우리 가게를 알리는 "온라인 간판"입니다. 상세 소개이니 가게 인사·정체성 → 사장님 철학 → 음식·재료·조리 특징 → 필요한 대표메뉴 정보 → 분위기 또는 자연스러운 마무리 순으로, 입력된 항목만 골라 충분히 소개해주세요. 특정 키워드를 반복해 넣는다고 상위 노출이 보장되지 않으니 자연스럽게만 써주세요. 대표키워드(최대 5개)는 상세설명과 별도 항목이니 문장 안에 억지로 나열하지 마세요.' },
+    },
+    '구글맵': {
+      brief: { place: '업체 설명(초안)', rule: '업체 설명 초안입니다. 구글맵은 "지도이자 신뢰 창구"입니다. 간단 소개이니 정확한 위치와 핵심 강점 중 중요한 것만 짧게 담아주세요. 외국인·관광객, 지도에서 근처를 찾는 사람 기준으로 업종·위치 중심으로 써주세요. 판촉·특가 중심으로 쓰지 말 것, 링크 금지가 구글의 정책입니다.' },
+      detailed: { place: '업체 설명(초안)', rule: '업체 설명 초안입니다. 구글맵은 "지도이자 신뢰 창구"입니다. 상세 소개이니 정확한 위치·영업 정보를 우선하면서, 입력된 가게 정체성·음식 특징·분위기를 자연스럽게 이어 붙여 충분히 소개해주세요. 외국인·관광객, 지도에서 근처를 찾는 사람 기준으로 써주세요. 판촉·특가 중심으로 쓰지 말 것, 링크 금지가 구글의 정책입니다.' },
+    },
+    '인스타그램': {
+      brief: { place: '피드·릴스 설명·스토리 문구', rule: '첫 두 줄에 실제 메뉴나 상황이 드러나도록, 짧은 문장 위주로 써주세요. 간단 소개이니 핵심 정보 중심으로 짧게요. 광고문처럼 과장하지 말고 우리 가게만 보여줄 수 있는 장면·이야기를 담아주세요.' },
+      detailed: { place: '피드·릴스 설명·스토리 문구', rule: '첫 두 줄에 실제 메뉴나 상황이 드러나도록 시작하되, 상세 소개이니 가게 이야기와 음식 특징을 충분히 풀어서 들려주세요. 광고문처럼 과장하지 말고 우리 가게만 보여줄 수 있는 장면·이야기를 담아주세요.' },
+    },
+  }
+  const byPlatform = table[platform]
+  return byPlatform ? byPlatform[mode] : null
+}
+
 function resolvePlacement(platform, postType, opts) {
   const englishOn = !!(opts && opts.englishOn)
   const hashtagCount = (opts && opts.hashtagCount) ?? 3
 
+  if (postType === '가게 소개') {
+    const introMode = (opts && opts.introMode) === 'detailed' ? 'detailed' : 'brief'
+    const introTargetLen = (opts && opts.introTargetLen) || INTRO_MODE_SPEC[introMode].defaultLen
+    const base = introPlacementFor(platform, introMode)
+    if (!base) return null
+    return { ...base, defaultLen: introTargetLen, english: platform === '구글맵' ? englishOn : undefined }
+  }
+
   const table = {
     '배민앱': {
-      '가게 소개': { place: '가게 소개', rule: '가게 소개 영역에 게시합니다(입력 한도 최대 500자). 배민은 손님이 메뉴를 고르고 바로 주문하는 "메뉴판 겸 주문대"입니다. 대표메뉴와 가격, 맛의 특징을 앞부분에 먼저 보여주고, "무엇이 다른 가게인지"가 드러나는 구체적 강점으로 손님의 선택을 도와주세요. 외부 주문·결제 유도, 외부 링크·SNS 홍보 문구는 넣지 마세요.', defaultLen: 150 },
       '메뉴 설명': { place: '메뉴 설명', rule: '메뉴 설명 영역에 게시합니다. 맛·식감·재료·구성처럼 주문 결정에 필요한 구체적 정보를 우선해주세요. "정성껏 준비했습니다" 같은 정보 없는 문장 대신 실제 재료·조리 방식을 써주세요.', defaultLen: 100 },
       '이벤트 안내': { place: '사장님 공지', rule: '사장님 공지 영역에 게시합니다. 날짜가 먼저 오도록, 변경 사항·혜택·조건을 명확히 3줄 이내로 써주세요.', defaultLen: 150 },
       'SNS 문구': { place: '사장님 공지', rule: '사장님 공지 영역에 게시합니다. 날짜가 먼저 오도록, 변경 사항·혜택·조건을 명확히 3줄 이내로 써주세요.', defaultLen: 150 },
@@ -177,7 +253,6 @@ function resolvePlacement(platform, postType, opts) {
       '리뷰 답변': { place: '리뷰 답변', rule: '실제 손님이 남긴 표현에 반응해 답글을 써주세요. 마케팅용 해시태그는 넣지 마세요.', defaultLen: 100 },
     },
     '네이버 플레이스': {
-      '가게 소개': { place: '업체 상세설명(초안, 입력 한도 최대 2,000자)', rule: '업체 상세설명 초안입니다. 네이버 플레이스는 우리 가게를 알리는 "온라인 간판"입니다. 위치·영업시간·대표메뉴·가격처럼 검색해서 비교하는 손님에게 필요한 기본 정보를 깔끔하고 사실대로 보여주세요. 특정 키워드를 반복해 넣는다고 상위 노출이 보장되지 않으니 자연스럽게만 써주세요. 대표키워드(최대 5개)는 상세설명과 별도 항목이니 문장 안에 억지로 나열하지 마세요.', defaultLen: 300 },
       '메뉴 설명': { place: '업체 상세설명(초안)', rule: '업체 상세설명 초안입니다. 위치·이용 상황·메뉴·가격처럼 검색해서 비교하는 손님에게 필요한 정보를 정확히 써주세요. 특정 키워드를 반복해 넣는다고 상위 노출이 보장되지 않으니 자연스럽게만 써주세요.', defaultLen: 300 },
       '이벤트 안내': { place: '새소식·공지', rule: '새소식·공지 영역에 게시합니다. 시기성 정보와 조건을 우선해주세요.', defaultLen: 300 },
       'SNS 문구': { place: '새소식·공지', rule: '새소식·공지 영역에 게시합니다. 시기성 정보와 조건을 우선해주세요.', defaultLen: 300 },
@@ -185,7 +260,6 @@ function resolvePlacement(platform, postType, opts) {
       '리뷰 답변': { place: '리뷰 답변', rule: '실제 손님이 남긴 표현에 반응해 답글을 써주세요. 마케팅용 해시태그는 넣지 마세요.', defaultLen: 100 },
     },
     '구글맵': {
-      '가게 소개': { place: '업체 설명(초안)', rule: '업체 설명 초안입니다. 구글맵은 "지도이자 신뢰 창구"입니다. 정확한 위치와 영업 정보를 우선하고, 가게 특징은 짧게만 덧붙이세요. 외국인·관광객, 지도에서 근처를 찾는 사람 기준으로 업종·위치 중심으로 써주세요. 판촉·특가 중심으로 쓰지 말 것, 링크 금지가 구글의 정책입니다.', defaultLen: 100, english: englishOn },
       '메뉴 설명': { place: '업체 설명(초안)', rule: '업체 설명 초안입니다. 외국인·관광객, 지도에서 근처를 찾는 사람 기준으로 업종·위치·대표메뉴 중심으로 써주세요. 판촉·특가 중심으로 쓰지 말 것, 링크 금지가 구글의 정책입니다.', defaultLen: 100, english: englishOn },
       '이벤트 안내': { place: '업데이트 게시물(초안)', rule: '업데이트 게시물 초안입니다. 행사 사실과 조건을 포함하되, 가격·할인을 전면에 내세우지 마세요.', defaultLen: 100, english: englishOn },
       'SNS 문구': { place: '업데이트 게시물(초안)', rule: '업데이트 게시물 초안입니다.', defaultLen: 100, english: englishOn },
@@ -193,7 +267,6 @@ function resolvePlacement(platform, postType, opts) {
       '리뷰 답변': { place: '리뷰 답변', rule: '실제 손님이 남긴 표현에 반응해 답글을 써주세요. 마케팅용 해시태그는 넣지 마세요.', defaultLen: 100 },
     },
     '인스타그램': {
-      '가게 소개': { place: '피드·릴스 설명·스토리 문구', rule: '첫 두 줄에 실제 메뉴나 상황이 드러나도록, 짧은 문장 위주로 써주세요. 광고문처럼 과장하지 말고 우리 가게만 보여줄 수 있는 장면·이야기를 담아주세요.', defaultLen: 150, hashtag: hashtagCount },
       '메뉴 설명': { place: '피드·릴스 설명·스토리 문구', rule: '첫 두 줄에 실제 메뉴나 상황이 드러나도록, 짧은 문장 위주로 써주세요. 광고문처럼 과장하지 말고 우리 가게만 보여줄 수 있는 장면·이야기를 담아주세요.', defaultLen: 150, hashtag: hashtagCount },
       '이벤트 안내': { place: '피드·릴스 설명·스토리 문구', rule: '첫 두 줄에 실제 메뉴나 상황이 드러나도록, 짧은 문장 위주로 써주세요.', defaultLen: 150, hashtag: hashtagCount },
       'SNS 문구': { place: '피드·릴스 설명·스토리 문구', rule: '첫 두 줄에 실제 메뉴나 상황이 드러나도록, 짧은 문장 위주로 써주세요.', defaultLen: 150, hashtag: hashtagCount },
@@ -205,6 +278,7 @@ function resolvePlacement(platform, postType, opts) {
   if (!byPlatform) return null
   const entry = byPlatform[postType]
   if (!entry) return null
+  if (platform === '인스타그램') return { ...entry, hashtag: hashtagCount }
   return entry
 }
 
@@ -215,8 +289,8 @@ function resolvePlacement(platform, postType, opts) {
 
 const TEMPLATES = [
   // A. 가게 소개·기본
-  { id: 1, title: '처음 오신 손님께 소개', category: '가게 소개·기본', type: '가게 소개', optionalPlatform: null,
-    instruction: '우리 가게를 처음 보는 손님에게 소개하는 글을 200자 이내로 써주세요.', quickBlank: null, targetLen: 200,
+  { id: 1, title: '처음 오신 손님께 소개', category: '가게 소개·기본', type: '가게 소개', optionalPlatform: null, supportsIntroMode: true,
+    instruction: '우리 가게를 처음 보는 손님에게 소개하는 글을 써주세요.', quickBlank: null, targetLen: null,
     example: '20년째 같은 자리에서 얼큰돼지국밥을 끓이는 집입니다. 매일 아침 육수를 직접 우려내고, 얼큰돼지국밥 10,000원·수육백반 13,000원에 판매합니다. 평일 점심엔 직장인 손님이 많고, 혼자 오셔도 편하게 드실 수 있어요.' },
   { id: 2, title: '다섯 가지 소개 문구', category: '가게 소개·기본', type: '가게 소개', optionalPlatform: null,
     instruction: '우리 가게를 한 문장으로 설명하는 문구를 5개 만들어주세요. 서로 다른 각도로요.', quickBlank: null, targetLen: null,
@@ -224,8 +298,8 @@ const TEMPLATES = [
   { id: 3, title: '강점 세 가지 정리', category: '가게 소개·기본', type: '가게 소개', optionalPlatform: null,
     instruction: '우리 가게 강점 세 가지를 손님 입장에서 이해되게 정리해주세요.', quickBlank: null, targetLen: null,
     example: '1) 20년째 같은 재료로 끓이는 육수 2) 평일 점심 직장인 단골 많음 3) 혼밥도 편안한 자리' },
-  { id: 4, title: '배민 소개란 문구', category: '가게 소개·기본', type: '가게 소개', optionalPlatform: '배민앱',
-    instruction: '배민 가게 소개란에 넣을 문구를 150자 이내로 써주세요.', quickBlank: null, targetLen: 150,
+  { id: 4, title: '배민 소개란 문구', category: '가게 소개·기본', type: '가게 소개', optionalPlatform: '배민앱', supportsIntroMode: true,
+    instruction: '배민 가게 소개란에 넣을 문구를 써주세요.', quickBlank: null, targetLen: null,
     example: '매일 아침 육수를 직접 끓이는 20년 전통 돼지국밥집입니다. 얼큰돼지국밥 10,000원, 수육백반 13,000원. 평일 점심엔 직장인 손님이 많이 찾습니다.' },
   { id: 5, title: '무엇을 시킬지 안내', category: '가게 소개·기본', type: '가게 소개', optionalPlatform: null,
     instruction: '처음 오신 손님이 무엇을 시켜야 할지 알려주는 안내 문구를 써주세요.', quickBlank: null, targetLen: null,
@@ -338,7 +412,8 @@ const QUICK_PREVIEW_PLATFORMS = [
   { key: '인스타그램', label: '인스타그램 · 게시글', role: '관심·기억·공유를 만드는 콘텐츠', dot: '#C13584', limit: 2200 },
 ]
 
-export function buildQuickDraft(profile, platformKey) {
+export function buildQuickDraft(profile, platformKey, introSpec) {
+  const name = (profile.name || '').trim()
   const menuFeature = (profile.menuFeature || '').trim()
   const menuPrice = (profile.menuPrice || '').trim()
   const strength = (profile.strength || '').trim()
@@ -346,34 +421,74 @@ export function buildQuickDraft(profile, platformKey) {
   const category = (profile.category || '').trim()
   const priceRange = (profile.priceRange || '').trim()
   const philosophy = (profile.philosophy || '').trim()
+  const mood = (profile.mood || '').trim()
+  const detailed = !!(introSpec && introSpec.mode === 'detailed')
 
   const parts = []
   if (platformKey === '배민앱') {
     // 메뉴판 겸 주문대: 대표메뉴·가격을 맨 먼저, 핵심부터 보여준다
-    if (menuPrice) parts.push(`대표메뉴는 ${menuPrice}입니다.`)
-    if (menuFeature) parts.push(`${menuFeature}.`)
-    if (strength) parts.push(`${strength}.`)
+    if (detailed) {
+      const idLine = [name, category].filter(Boolean).join(', ')
+      if (idLine) parts.push(`${idLine}입니다.`)
+      if (philosophy) parts.push(`${philosophy}.`)
+      if (menuFeature) parts.push(`${menuFeature}.`)
+      if (menuPrice) parts.push(`대표메뉴는 ${menuPrice}입니다.`)
+      if (strength) parts.push(`${strength}.`)
+      if (mood) parts.push(`${mood}.`)
+    } else {
+      if (menuPrice) parts.push(`대표메뉴는 ${menuPrice}입니다.`)
+      if (menuFeature) parts.push(`${menuFeature}.`)
+      if (strength) parts.push(`${strength}.`)
+    }
   } else if (platformKey === '네이버 플레이스') {
     // 온라인 간판: 위치·영업시간·주차·대표메뉴 같은 기본 정보를 사실대로만
     const place = [location, category].filter(Boolean).join(', ')
-    if (place) parts.push(`${place}에서 운영하는 곳입니다.`)
-    if (menuPrice) parts.push(`대표메뉴는 ${menuPrice}입니다.`)
-    if (priceRange) parts.push(`가격대는 ${priceRange}입니다.`)
+    if (detailed) {
+      const idLine = [name, category].filter(Boolean).join(', ')
+      if (idLine) parts.push(`${idLine}입니다.`)
+      if (location) parts.push(`${location}에서 운영하고 있습니다.`)
+      if (philosophy) parts.push(`${philosophy}.`)
+      if (menuFeature) parts.push(`${menuFeature}.`)
+      if (menuPrice) parts.push(`대표메뉴는 ${menuPrice}입니다.`)
+      if (priceRange) parts.push(`가격대는 ${priceRange}입니다.`)
+      if (mood) parts.push(`${mood}.`)
+    } else {
+      if (place) parts.push(`${place}에서 운영하는 곳입니다.`)
+      if (menuPrice) parts.push(`대표메뉴는 ${menuPrice}입니다.`)
+      if (priceRange) parts.push(`가격대는 ${priceRange}입니다.`)
+    }
   } else if (platformKey === '구글맵') {
     // 지도이자 신뢰 창구: 정확한 위치를 우선하고, 가게 특징은 짧게만
-    if (location) parts.push(`${location}에 있습니다.`)
-    if (strength) parts.push(`${strength}.`)
+    if (detailed) {
+      if (location) parts.push(`${location}에 있습니다.`)
+      const idLine = [name, category].filter(Boolean).join(', ')
+      if (idLine) parts.push(`${idLine}입니다.`)
+      if (menuFeature) parts.push(`${menuFeature}.`)
+      if (strength) parts.push(`${strength}.`)
+      if (mood) parts.push(`${mood}.`)
+    } else {
+      if (location) parts.push(`${location}에 있습니다.`)
+      if (strength) parts.push(`${strength}.`)
+    }
   } else if (platformKey === '인스타그램') {
-    if (philosophy) parts.push(`${philosophy}.`)
-    if (menuFeature) parts.push(`${menuFeature}.`)
-    if (strength) parts.push(`${strength}.`)
+    if (detailed) {
+      if (philosophy) parts.push(`${philosophy}.`)
+      if (menuFeature) parts.push(`${menuFeature}.`)
+      if (strength) parts.push(`${strength}.`)
+      if (mood) parts.push(`${mood}.`)
+    } else {
+      if (philosophy) parts.push(`${philosophy}.`)
+      if (menuFeature) parts.push(`${menuFeature}.`)
+      if (strength) parts.push(`${strength}.`)
+    }
   }
-  return parts.filter(Boolean).join(' ')
+  return parts.filter(Boolean).join(detailed ? '\n\n' : ' ')
 }
 
 const ALL_PLATFORMS_ORDER = ['배민앱', '네이버 플레이스', '구글맵', '인스타그램']
 
-export function buildAllPlatformsRequest(profile) {
+export function buildAllPlatformsRequest(profile, introSpec) {
+  const spec = introSpec || INTRO_MODE_SPEC.brief
   const filledFields = PROFILE_FIELDS.filter((f) => (profile[f.key] || '').trim())
   const profileLines = filledFields.length
     ? filledFields.map((f) => `${f.no}. ${f.label}: ${profile[f.key].trim()}`).join('\n')
@@ -385,16 +500,17 @@ export function buildAllPlatformsRequest(profile) {
   out += `아래 우리 가게 소개서에 적힌 사실만 사용해서, 플랫폼마다 고객이 궁금해하는 것에 맞는 가게 소개글을 각각 작성해주세요.\n`
   out += `절대로 입력하지 않은 사실을 추측하거나 만들어내지 마세요.\n`
   out += `쓰지 않을 표현을 사용하지 마세요: ${avoid}\n`
-  out += `이번 글의 말투: ${tone}\n\n`
+  out += `이번 글의 말투: ${tone}\n`
+  out += `소개 방식(4개 플랫폼 공통 선택): ${spec.label}\n\n`
   out += `[우리 가게 소개서]\n${profileLines}\n\n`
   out += `다음 4개 플랫폼용으로 각각 따로, 플랫폼 이름을 소제목으로 붙여서 작성해주세요. 플랫폼마다 지켜야 할 규칙이 다르니 아래 각 플랫폼의 규칙을 그 플랫폼 글에만 적용해주세요.\n\n`
 
   ALL_PLATFORMS_ORDER.forEach((platform, i) => {
-    const placement = resolvePlacement(platform, '가게 소개', {})
+    const placement = resolvePlacement(platform, '가게 소개', { introMode: spec.mode, introTargetLen: spec.targetLen })
     out += `${i + 1}. ${platform}\n`
     out += `게시 위치: ${placement.place}\n`
     out += `${placement.rule}\n`
-    out += `목표 분량: ${placement.defaultLen}자 안팎\n`
+    out += `목표 분량: ${placement.defaultLen}자 이내\n`
     const platformRules = buildPlatformSpecificRules(platform)
     if (platformRules) out += platformRules
     out += `\n`
@@ -402,6 +518,7 @@ export function buildAllPlatformsRequest(profile) {
 
   out += `[최우선 작성 원칙 — 4개 글 모두 공통]\n`
   out += buildTopPriorityPrinciples(profile)
+  out += `- 소개 방식(${spec.label})에 맞게 작성하세요: ${spec.direction}.\n`
   out += `- 네 글 모두 같은 사실을 쓰되, 플랫폼별 고객 목적과 위에 적힌 플랫폼별 규칙에 맞게 강조하는 부분과 표현 방식만 다르게 해주세요.\n`
   out += `- 마지막에는 각 글에서 어떤 "우리 가게 소개서" 항목을 사용했는지 따로 알려주세요.\n`
 
@@ -729,8 +846,13 @@ export function buildReviewReplyTemplateRequest(profile, task) {
 export function buildRequest(profile, task) {
   if (task.type === '리뷰 답변') return buildReviewReplyRequest(profile, task)
   const platform = task.platform
-  const placement = platform ? resolvePlacement(platform, task.type, { englishOn: task.googleEnglishOn, hashtagCount: task.hashtagCount }) : null
-  const length = resolveLength(task, placement)
+  const introActive = introModeActive(task)
+  const introSpec = introActive ? resolveIntroSpec(task) : null
+  const placement = platform ? resolvePlacement(platform, task.type, {
+    englishOn: task.googleEnglishOn, hashtagCount: task.hashtagCount,
+    introMode: introSpec && introSpec.mode, introTargetLen: introSpec && introSpec.targetLen,
+  }) : null
+  const length = introSpec ? introSpec.targetLen : resolveLength(task, placement)
 
   const profileLines = PROFILE_FIELDS.map((f) => {
     const raw = (profile[f.key] || '').trim()
@@ -749,7 +871,9 @@ export function buildRequest(profile, task) {
   out += `누구에게: ${resolveAudience(profile, task)}\n`
   out += `목적: ${resolveGoal(task)}\n`
   out += `올릴 곳과 게시 위치: ${placeText}\n`
+  if (introActive) out += `소개 방식: ${introSpec.label}\n`
   out += `한국어 본문 목표: 공백·줄바꿈 포함 ${length}자 이내\n`
+  if (introActive) out += `작성 방향: ${introSpec.direction}\n`
   out += `이번 글의 말투: ${resolveTone(profile, task)}\n`
 
   if (task.templateInstruction) {
@@ -763,6 +887,9 @@ export function buildRequest(profile, task) {
 
   out += `\n[최우선 작성 원칙]\n`
   out += buildTopPriorityPrinciples(profile)
+  if (introActive) {
+    out += `- ${introSpec.structureNote}\n`
+  }
   if (task.type === '메뉴 설명') {
     out += `- 입력하지 않은 맵기 단계·양·인분 수·밥 포함 여부를 만들지 마세요.\n`
   }
@@ -810,6 +937,14 @@ export function buildRewriteRequest(profile, task, originalText, direction, extr
     return `${f.no}. ${f.label}: ${raw || '미입력 — 추정하지 말고 생략'}`
   }).join('\n')
 
+  const introActive = introModeActive(task)
+  const introSpec = introActive ? resolveIntroSpec(task) : null
+  const currentPlacement = task.platform ? resolvePlacement(task.platform, task.type, {
+    englishOn: task.googleEnglishOn, hashtagCount: task.hashtagCount,
+    introMode: introSpec && introSpec.mode, introTargetLen: introSpec && introSpec.targetLen,
+  }) : null
+  const currentTargetLen = introSpec ? introSpec.targetLen : resolveLength(task, currentPlacement)
+
   let out = `당신은 외식업 홍보 전문 카피라이터입니다.\n`
   out += `아래는 이미 받은 글과 그 글을 만들 때의 조건입니다. 조건을 유지하면서 아래 수정 방향에 맞게 다시 써주세요.\n\n`
   out += `[우리 가게 소개서]\n${profileLines}\n\n`
@@ -818,6 +953,8 @@ export function buildRewriteRequest(profile, task, originalText, direction, extr
   out += `누구에게: ${resolveAudience(profile, task)}\n`
   out += `목적: ${resolveGoal(task)}\n`
   out += `올릴 곳: ${task.platform || '미입력'}\n`
+  if (introActive) out += `소개 방식: ${introSpec.label}\n`
+  out += `목표 분량(원래 조건): 공백·줄바꿈 포함 ${currentTargetLen}자 이내\n`
   out += `이번 글의 말투: ${resolveTone(profile, task)}\n\n`
 
   const factLines = buildFactLines(task)
@@ -839,7 +976,10 @@ export function buildRewriteRequest(profile, task, originalText, direction, extr
   } else if (direction === 'shorter') {
     out += `공백 포함 ${extra.targetLength || '미입력'}자 이내로 줄여주세요. 다만 위 "이번 글에 확인된 사실"에 있는 날짜·가격·대상·제외 조건은 삭제하지 말고 유지하세요. 조건을 다 지키면서 줄이기 어려우면, 조건 보존을 분량 목표보다 우선하고 왜 목표보다 길어졌는지 짧게 적어주세요.\n`
   } else if (direction === 'otherPlatform') {
-    const placement = resolvePlacement(extra.newPlatform, task.type === '리뷰 답변' && !extra.isReview ? '가게 소개' : task.type, { englishOn: task.googleEnglishOn, hashtagCount: task.hashtagCount })
+    const placement = resolvePlacement(extra.newPlatform, task.type === '리뷰 답변' && !extra.isReview ? '가게 소개' : task.type, {
+      englishOn: task.googleEnglishOn, hashtagCount: task.hashtagCount,
+      introMode: introSpec && introSpec.mode, introTargetLen: introSpec && introSpec.targetLen,
+    })
     const newLength = (placement && placement.defaultLen) || 100
     out += `이 글을 "${extra.newPlatform || '미입력'}"에 맞게 바꿔주세요.\n`
     out += `목표 분량: 공백·줄바꿈 포함 ${newLength}자 이내\n`
@@ -1482,6 +1622,9 @@ function defaultTask() {
     templateTitle: '',
     quickNote: '',
     quickMode: false,
+    introMode: 'brief',
+    introLengthOverride: '',
+    introApplies: false,
   }
 }
 
@@ -1496,8 +1639,17 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) 
 
   function patch(fields) { setTask((t) => ({ ...t, ...fields })) }
 
+  // 직접 만들기의 '가게 소개'는 항상 간단/상세 선택이 적용되도록 함
+  useEffect(() => {
+    if (task.type === '가게 소개' && !task.introApplies) {
+      patch({ introApplies: true })
+    } else if (task.type !== '가게 소개' && task.introApplies) {
+      patch({ introApplies: false })
+    }
+  }, [task.type])
+
   function onTypeChange(newType) {
-    const patchObj = { type: newType, goal: DEFAULT_GOAL_BY_TYPE[newType] || task.goal }
+    const patchObj = { type: newType, goal: DEFAULT_GOAL_BY_TYPE[newType] || task.goal, introApplies: newType === '가게 소개' }
     if (newType !== '오늘의 상황 안내') {
       patchObj.situationKind = '일반 상황'
     }
@@ -1555,6 +1707,35 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) 
           ))}
         </div>
       </div>
+
+      {introModeActive(task) && (
+        <div className="field">
+          <label>소개 방식</label>
+          <div className="chip-row">
+            {['brief', 'detailed'].map((m) => (
+              <button
+                key={m}
+                type="button"
+                className={`chip ${(task.introMode || 'brief') === m ? 'chip-active' : ''}`}
+                onClick={() => patch({ introMode: m, introLengthOverride: '' })}
+              >
+                {INTRO_MODE_SPEC[m].label}
+              </button>
+            ))}
+          </div>
+          <p className="field-hint">{INTRO_MODE_SPEC[task.introMode || 'brief'].hint} 소개 방식을 바꾸면 그 방식의 기본 목표 분량({INTRO_MODE_SPEC[task.introMode || 'brief'].defaultLen}자)으로 돌아가요.</p>
+          <details className="backup-panel">
+            <summary>분량 직접 조절 (선택)</summary>
+            <input
+              type="number" min={30} max={1000}
+              value={task.introLengthOverride}
+              onChange={(e) => patch({ introLengthOverride: e.target.value })}
+              placeholder={`기본값 ${INTRO_MODE_SPEC[task.introMode || 'brief'].defaultLen}자, 30~1000 사이 숫자`}
+            />
+            <p className="field-hint">비워두면 {INTRO_MODE_SPEC[task.introMode || 'brief'].label}의 기본 목표({INTRO_MODE_SPEC[task.introMode || 'brief'].defaultLen}자)를 사용해요. 앱 권장 범위: {INTRO_MODE_SPEC[task.introMode || 'brief'].recommendedRange}.</p>
+          </details>
+        </div>
+      )}
 
       {task.type !== '리뷰 답변' && (
         <>
@@ -1658,17 +1839,19 @@ function RequestBuilder({ profile, task, setTask, onGoPreview, onBackToQuick }) 
             )}
           </div>
 
-          <div className="field">
-            <label>분량 (한국어 본문 목표, 플랫폼 공식 규정이 아닌 이번 글의 목표입니다)</label>
-            <div className="chip-row">
-              {LENGTH_OPTIONS.map((n) => (
-                <button key={n} className={`chip ${task.length === n ? 'chip-active' : ''}`} onClick={() => patch({ length: n })}>{n === '직접 입력' ? n : `${n}자`}</button>
-              ))}
+          {!introModeActive(task) && (
+            <div className="field">
+              <label>분량 (한국어 본문 목표, 플랫폼 공식 규정이 아닌 이번 글의 목표입니다)</label>
+              <div className="chip-row">
+                {LENGTH_OPTIONS.map((n) => (
+                  <button key={n} className={`chip ${task.length === n ? 'chip-active' : ''}`} onClick={() => patch({ length: n })}>{n === '직접 입력' ? n : `${n}자`}</button>
+                ))}
+              </div>
+              {task.length === '직접 입력' && (
+                <input type="number" min={30} max={1000} value={task.lengthCustom} onChange={(e) => patch({ lengthCustom: e.target.value })} placeholder="30~1000 사이 숫자" />
+              )}
             </div>
-            {task.length === '직접 입력' && (
-              <input type="number" min={30} max={1000} value={task.lengthCustom} onChange={(e) => patch({ lengthCustom: e.target.value })} placeholder="30~1000 사이 숫자" />
-            )}
-          </div>
+          )}
         </>
       )}
 
@@ -1881,7 +2064,7 @@ const CATEGORY_DEFAULT_GOAL = {
   '리뷰·고객 응대': '감사와 신뢰를 느끼도록',
 }
 
-function buildQuickTask(template, platform, blankValue) {
+function buildQuickTask(template, platform, blankValue, introMode) {
   const t = defaultTask()
   t.quickMode = true
   t.type = template.type
@@ -1898,8 +2081,15 @@ function buildQuickTask(template, platform, blankValue) {
     t.platform = platform || template.optionalPlatform || ''
   }
 
-  const placement = t.platform ? resolvePlacement(t.platform, t.type, {}) : null
-  t.length = (placement && placement.defaultLen) || 100
+  if (template.supportsIntroMode) {
+    t.introApplies = true
+    t.introMode = introMode === 'detailed' ? 'detailed' : 'brief'
+  }
+  const introSpec = t.introApplies ? resolveIntroSpec(t) : null
+  const placement = t.platform ? resolvePlacement(t.platform, t.type, {
+    introMode: introSpec && introSpec.mode, introTargetLen: introSpec && introSpec.targetLen,
+  }) : null
+  t.length = introSpec ? introSpec.targetLen : ((placement && placement.defaultLen) || 100)
 
   if (template.quickBlank) {
     const key = template.quickBlank.key
@@ -1927,12 +2117,14 @@ function QuickPicker({ profile, setTask, onGoPreview, onGoRewrite, onGoCustom })
   const [selectedId, setSelectedId] = useState(null)
   const [platform, setPlatform] = useState('')
   const [blank, setBlank] = useState('')
+  const [introMode, setIntroMode] = useState('brief')
 
   const selected = TEMPLATES.find((t) => t.id === selectedId) || null
 
   function selectTemplate(t) {
     setSelectedId(t.id)
     setBlank('')
+    setIntroMode('brief')
     setPlatform(typeof t.optionalPlatform === 'string' && t.optionalPlatform !== 'dual' && t.optionalPlatform !== 'choose' ? t.optionalPlatform : '')
   }
 
@@ -1954,7 +2146,7 @@ function QuickPicker({ profile, setTask, onGoPreview, onGoRewrite, onGoCustom })
   function handleSubmit(t) {
     if (!canSubmit(t)) return
     const chosenPlatform = needsPlatformPicker(t) ? platform : (typeof t.optionalPlatform === 'string' ? t.optionalPlatform : platform)
-    const task = buildQuickTask(t, chosenPlatform, blank)
+    const task = buildQuickTask(t, chosenPlatform, blank, introMode)
     setTask(task)
     onGoPreview()
   }
@@ -1980,7 +2172,11 @@ function QuickPicker({ profile, setTask, onGoPreview, onGoRewrite, onGoCustom })
         {TEMPLATES.filter((t) => t.category === cat).map((t) => (
           <li key={t.id}>
             <button className={`quick-card ${selectedId === t.id ? 'quick-card-active' : ''}`} onClick={() => selectTemplate(t)}>
-              <span className="template-title">{t.title}{t.targetLen && <span className="badge badge-len">{t.targetLen}자</span>}</span>
+              <span className="template-title">
+                {t.title}
+                {t.targetLen && <span className="badge badge-len">{t.targetLen}자</span>}
+                {t.supportsIntroMode && <span className="badge badge-len">{INTRO_MODE_SPEC[selectedId === t.id ? introMode : 'brief'].defaultLen}자</span>}
+              </span>
               <span className="template-instruction">{t.instruction}</span>
               {t.example && <span className="template-example">예시: "{t.example}"</span>}
             </button>
@@ -1996,6 +2192,19 @@ function QuickPicker({ profile, setTask, onGoPreview, onGoRewrite, onGoCustom })
                   <>
                     {t.optionalPlatform === 'dual' && (
                       <p className="field-hint">배민 공지 문구와 인스타그램 글, 두 가지를 한 번에 만들어드려요.</p>
+                    )}
+                    {t.supportsIntroMode && (
+                      <div className="field">
+                        <label>소개 방식</label>
+                        <div className="chip-row">
+                          {['brief', 'detailed'].map((m) => (
+                            <button key={m} type="button" className={`chip ${introMode === m ? 'chip-active' : ''}`} onClick={() => setIntroMode(m)}>
+                              {INTRO_MODE_SPEC[m].label}
+                            </button>
+                          ))}
+                        </div>
+                        <p className="field-hint">{INTRO_MODE_SPEC[introMode].hint} (본문 목표 {INTRO_MODE_SPEC[introMode].defaultLen}자 이내, 앱 권장 {INTRO_MODE_SPEC[introMode].recommendedRange})</p>
+                      </div>
                     )}
                     {needsPlatformPicker(t) && (
                       <div className="field">
@@ -2105,11 +2314,11 @@ function CopyBlock({ label, text, disabled, onCopied }) {
   )
 }
 
-function QuickPreviewCard({ profile, platform, onGoRewrite }) {
-  const text = buildQuickDraft(profile, platform.key)
+function QuickPreviewCard({ profile, platform, introSpec, onGoRewrite }) {
+  const text = buildQuickDraft(profile, platform.key, introSpec)
   const chars = countCharacters(text)
   const hits = findForbiddenHits(text, profile.avoid)
-  const appRecommended = (resolvePlacement(platform.key, '가게 소개', {}) || {}).defaultLen
+  const appRecommended = introSpec ? introSpec.targetLen : (resolvePlacement(platform.key, '가게 소개', {}) || {}).defaultLen
   const overLimit = platform.limit && chars.withSpaces > platform.limit
   const overAmount = overLimit ? chars.withSpaces - platform.limit : 0
   const ok = hits.length === 0 && !overLimit
@@ -2142,7 +2351,7 @@ function QuickPreviewCard({ profile, platform, onGoRewrite }) {
       {text && (
         <p className={`quick-preview-badge ${ok ? 'quick-preview-ok' : 'quick-preview-warn'}`}>
           {ok
-            ? '과장 표현 없음 · 입력 기준 이내'
+            ? '등록한 금지 표현은 발견되지 않았어요 · 입력 기준 이내'
             : hits.length > 0
               ? `쓰지 않기로 한 표현이 보여요: ${hits.join(', ')}`
               : `플랫폼 입력 한도보다 ${overAmount}자 많아요`}
@@ -2160,13 +2369,31 @@ function QuickPreviewCard({ profile, platform, onGoRewrite }) {
   )
 }
 
+function IntroModeMiniToggle({ introMode, setIntroMode }) {
+  return (
+    <div className="field">
+      <label>소개 방식 (이 미리보기 전용, 지금 작업 중인 다른 글과는 별개예요)</label>
+      <div className="chip-row">
+        {['brief', 'detailed'].map((m) => (
+          <button key={m} type="button" className={`chip ${introMode === m ? 'chip-active' : ''}`} onClick={() => setIntroMode(m)}>
+            {INTRO_MODE_SPEC[m].label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function QuickMultiPlatformPreview({ profile, onGoRewrite }) {
+  const [introMode, setIntroMode] = useState('brief')
+  const introSpec = resolveIntroSpec({ introMode })
   return (
     <details className="backup-panel" open>
       <summary>AI 없이 바로 미리보기 (규칙 기반 초안)</summary>
-      <p className="field-hint">같은 가게라도 플랫폼마다 역할이 다르면 쓰는 말도 달라져야 해요. 소개서에 적은 사실만 그대로 조합한 초안이에요. AI를 부르지 않아서 무료이고 바로 볼 수 있지만, 문장이 매끄럽지 않을 수 있어요. 더 다듬고 싶으면 아래 "AI에게 부탁할 문장"을 ChatGPT나 Claude에 붙여 넣어주세요. 미입력된 가격·영업시간·주차·배달 조건 등은 추정해서 채우지 않아요.</p>
+      <p className="field-hint">같은 가게라도 플랫폼마다 역할이 다르면 쓰는 말도 달라져야 해요. 소개서에 적은 사실만 그대로 조합한 가게 소개 전용 초안이에요. AI를 부르지 않아서 무료이고 바로 볼 수 있지만, 문장이 매끄럽지 않을 수 있어요. 더 다듬고 싶으면 아래 "AI에게 부탁할 문장"을 ChatGPT나 Claude에 붙여 넣어주세요. 미입력된 가격·영업시간·주차·배달 조건 등은 추정해서 채우지 않아요.</p>
+      <IntroModeMiniToggle introMode={introMode} setIntroMode={setIntroMode} />
       <div className="quick-preview-grid">
-        {QUICK_PREVIEW_PLATFORMS.map((p) => <QuickPreviewCard key={p.key} profile={profile} platform={p} onGoRewrite={onGoRewrite} />)}
+        {QUICK_PREVIEW_PLATFORMS.map((p) => <QuickPreviewCard key={p.key} profile={profile} platform={p} introSpec={introSpec} onGoRewrite={onGoRewrite} />)}
       </div>
     </details>
   )
@@ -2174,22 +2401,28 @@ function QuickMultiPlatformPreview({ profile, onGoRewrite }) {
 
 function AllPlatformsPromptPanel({ profile, onSaveHistory }) {
   const [open, setOpen] = useState(false)
-  const text = useMemo(() => wrapCodeBlock(buildAllPlatformsRequest(profile)), [profile])
+  const [introMode, setIntroMode] = useState('brief')
+  const introSpec = resolveIntroSpec({ introMode })
+  const text = useMemo(() => wrapCodeBlock(buildAllPlatformsRequest(profile, introSpec)), [profile, introSpec])
   return (
     <details className="backup-panel" open={open} onToggle={(e) => setOpen(e.target.open)}>
       <summary>4개 플랫폼용 프롬프트 한 번에 만들기</summary>
-      <p className="field-hint">이 문장 하나만 복사해서 ChatGPT나 Claude에 붙여 넣으면, 배민·네이버·구글맵·인스타그램용 소개글 4개를 한 번에 받을 수 있어요.</p>
+      <p className="field-hint">이 문장 하나만 복사해서 ChatGPT나 Claude에 붙여 넣으면, 배민·네이버·구글맵·인스타그램용 소개글 4개를 한 번에 받을 수 있어요. 지금 작업 중인 다른 글과는 별개인, 가게 소개 전용 기능이에요.</p>
+      <IntroModeMiniToggle introMode={introMode} setIntroMode={setIntroMode} />
+      <p className="field-hint">4개 플랫폼 공통 선택: {introSpec.label} · 본문 목표 {introSpec.targetLen}자 이내</p>
       <CopyBlock text={text} disabled={false} onCopied={(t) => onSaveHistory(t, '4개 플랫폼 한번에')} />
     </details>
   )
 }
 
-function RequestPreview({ profile, task, history, onSaveHistory, onBack, onGoRewrite }) {
+function RequestPreview({ profile, task, setTask, history, onSaveHistory, onBack, onGoRewrite }) {
   const check = validateTask(profile, task)
   const sensitiveItems = collectSensitive(profile, task)
   const canCopy = check.valid && sensitiveItems.length === 0
   const isMulti = task.dualMode && task.extraPlatforms && task.extraPlatforms.length > 0
   const isReview = task.type === '리뷰 답변'
+  const introActive = introModeActive(task)
+  const introSpecCurrent = introActive ? resolveIntroSpec(task) : null
 
   const [shorter, setShorter] = useState(false)
   const [warmer, setWarmer] = useState(false)
@@ -2215,6 +2448,22 @@ function RequestPreview({ profile, task, history, onSaveHistory, onBack, onGoRew
     <div className="screen">
       <h2>AI에게 부탁할 문장</h2>
       <p className="lead">이 문장을 복사해 ChatGPT나 Claude에 붙여 넣어주세요.</p>
+
+      {introActive && (
+        <div className="confirm-box">
+          <p className="field-hint">현재 조건: {task.platform || '올릴 곳 미선택'} · 가게 소개 · {introSpecCurrent.label} · 본문 목표 {introSpecCurrent.targetLen}자 이내</p>
+          {setTask && (
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() => setTask((t) => ({ ...t, introMode: t.introMode === 'detailed' ? 'brief' : 'detailed', introLengthOverride: '' }))}
+            >
+              {introSpecCurrent.mode === 'brief' ? '상세 소개 요청으로 바꾸기' : '간단 소개 요청으로 바꾸기'}
+            </button>
+          )}
+          <p className="field-hint">이 버튼은 AI가 다시 글을 쓰는 게 아니라, 복사할 요청 문장만 다시 조합해요. 소개서와 이번 입력값은 그대로 남아요.</p>
+        </div>
+      )}
 
       {profileStat.coreComplete && !isReview && <QuickMultiPlatformPreview profile={profile} onGoRewrite={onGoRewrite} />}
       {profileStat.coreComplete && !isReview && <AllPlatformsPromptPanel profile={profile} onSaveHistory={onSaveHistory} />}
@@ -2343,6 +2592,8 @@ function RewriteBuilder({ profile, task, onBack, initialDirection, initialNewPla
   const forbiddenHits = findForbiddenHits(original, profile.avoid)
   const compensationHits = task.type === '리뷰 답변' ? findCompensationHits(original) : []
   const sensOriginal = detectSensitiveData(original)
+  const looksLikeRequestPrompt = ['[우리 가게 소개서]', '[최우선 작성 원칙]', '[이번 글]', '당신은 외식업 홍보 전문 카피라이터입니다']
+    .some((marker) => original.includes(marker))
 
   const highlightOptions = [profile.menuFeature, profile.strength, task.menuIngredient, task.confirmedFeature]
     .filter((v) => (v || '').trim())
@@ -2390,8 +2641,9 @@ function RewriteBuilder({ profile, task, onBack, initialDirection, initialNewPla
 
       <div className="field">
         <label>받은 글 원문</label>
-        <textarea rows={6} value={original} onChange={(e) => { setOriginal(e.target.value); setResultText('') }} placeholder="여기에 받은 글 본문만 붙여 넣어주세요." />
+        <textarea rows={6} value={original} onChange={(e) => { setOriginal(e.target.value); setResultText('') }} placeholder="여기에 받은 글 본문만 붙여 넣어주세요. (AI에게 부탁한 요청 문장이 아니라, AI가 써준 소개글 본문이에요)" />
         <p className="field-hint">공백 포함 {chars.withSpaces}자 · 공백 제외 {chars.withoutSpaces}자. 목표 글자 수는 한국어 본문 기준이라 본문만 붙여 넣는 게 정확해요. 영어·해시태그가 섞이면 그 문자도 함께 계산돼요.{task.type === '리뷰 답변' && ' 배민 댓글 입력칸 1,000자 · 권장 세 문장'}</p>
+        {looksLikeRequestPrompt && <p className="field-error">요청 문장이 들어간 것 같아요. AI가 써준 소개글 본문을 넣어주세요.</p>}
         {forbiddenHits.length > 0 && <p className="field-error">쓰지 않기로 한 표현이 보여요: {forbiddenHits.join(', ')}</p>}
         {compensationHits.length > 0 && <p className="field-error">보상·반박처럼 보이는 표현이 있어요: {compensationHits.join(', ')}</p>}
         {sensOriginal.flagged && <p className="field-error">손님·직원·계좌 정보로 보이는 내용이 있어요: {sensOriginal.matches.map((m) => m.type).join(', ')}</p>}
@@ -2701,6 +2953,7 @@ function App() {
               <RequestPreview
                 profile={profile}
                 task={task}
+                setTask={setTask}
                 history={history}
                 onSaveHistory={addHistory}
                 onBack={() => setScreen('task')}
