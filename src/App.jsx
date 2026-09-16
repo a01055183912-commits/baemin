@@ -1394,8 +1394,8 @@ const PLATFORM_CHAR_LIMITS = [
   {
     platform: '네이버 플레이스', field: '업체 상세설명', limit: 2000, unit: '자',
     status: '강의 자료의 등록 화면 캡처로 확인',
-    note: '사장님이 직접 쓰는 글이에요. 대표키워드(별도 항목)와 달리 문장 형태로 우리 가게를 설명해주세요. 공식 도움말 URL로 재확인하지는 못했으니, 실제 등록 화면의 표시도 함께 확인해주세요.',
-    source: null,
+    note: '사장님이 직접 쓰는 글이에요. 대표키워드(별도 항목)와 달리 문장 형태로 우리 가게를 설명해주세요. 아래 네이버 스마트플레이스 소개 페이지도 참고해주시고, 실제 등록 화면의 표시도 함께 확인해주세요.',
+    source: { label: '네이버 스마트플레이스 소개', url: 'https://new.smartplace.naver.com/introduction/smartplace' },
   },
   {
     platform: '네이버 플레이스', field: '대표키워드', limit: 5, unit: '개',
