@@ -659,7 +659,7 @@ export function buildReviewReplyRequest(profile, task, opts) {
   out += `별점: ${task.rating ? `${task.rating}점` : '미입력'}\n`
   out += `반응할 손님 표현: ${(task.reviewExpression || '').trim() || '미입력 — 리뷰에서 표현 하나를 직접 골라 반응해주세요'}\n`
   out += `제가 할 조치: ${hasAction ? actionRaw : '없음 — "확인하겠습니다" 수준까지만 쓰고 새로운 약속은 하지 마세요'}\n`
-  out += `분량: ${opts.shorter ? '자연스러운 두 문장 정도로 짧게' : '자연스러운 세 문장 정도'}${hasEventPromo ? ' (이벤트 안내 문장 포함하면 조금 더 길어져도 됨)' : ''}${platformLenNote}\n`
+  out += `분량: ${opts.shorter ? '자연스러운 두 문장 정도로 짧게' : '칭찬 답글은 3~5문장 정도로 성의 있게, 리뷰 내용에 따라 자연스럽게 조절하세요(짧은 리뷰라도 형식적인 한두 문장으로 끝내지 마세요). 불편/사과 답글은 사과→조치→감사 순서로 간결하게, 세 문장 정도면 충분해요.'}${hasEventPromo ? ' (이벤트 안내 문장 포함하면 조금 더 길어져도 됨)' : ''}${platformLenNote}\n`
   out += `이번 글의 말투: ${resolveTone(profile, task)}${opts.warmer ? ' (이번 답글은 평소보다 조금 더 따뜻하고 다정하게)' : ''}\n`
 
   if (hasEventPromo) {
@@ -677,6 +677,8 @@ export function buildReviewReplyRequest(profile, task, opts) {
 
   out += `\n[꼭 지킬 원칙]\n`
   out += `- 손님이 남긴 구체적인 표현이나 경험 하나에 직접 반응하세요. 복사한 것처럼 보이지 않게 써주세요.\n`
+  out += `- 매번 비슷한 감사 문구나 마무리를 반복하지 마세요. 사장님이 직접 읽고 답한 것처럼, 리뷰마다 다르게 써주세요.\n`
+  out += `- 리뷰에 없는 내용은 새로 지어내지 마세요.\n`
   out += `- 칭찬이면 공감과 감사를 중심으로 쓰세요.\n`
   out += `- 불편이면 불편에 대한 공감과 사과를 중심으로 쓰고, 확인되지 않은 원인이나 책임은 단정하지 마세요.\n`
   out += `- 칭찬과 불편이 섞여 있으면 칭찬에는 감사하되 불편 사항을 빠뜨리지 마세요.\n`
