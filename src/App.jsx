@@ -335,7 +335,7 @@ const QUICK_PREVIEW_PLATFORMS = [
   { key: '네이버 플레이스', label: '네이버 플레이스 · 소개', role: '온라인 간판', dot: '#03C75A', limit: 2000,
     note: '실제 등록할 때는 영업시간·휴무일·정확한 위치·주차 정보를 해당 항목에 함께 갖춰 주세요. 소개글에 모두 넣을 필요는 없지만, 방문 결정에 필요한 정보입니다. 확인되지 않은 내용은 추가하지 마세요. 대표키워드(최대 5개)는 상세설명과 별도 항목이니 네이버 등록 화면에서 따로 입력해주세요.' },
   { key: '구글맵', label: '구글맵 · 업체 설명', role: '지도이자 신뢰 창구', dot: '#4285F4', limit: 750 },
-  { key: '인스타그램', label: '인스타그램 · 게시글', role: '관심·기억·공유를 만드는 콘텐츠', dot: '#C13584', limit: 2200 },
+  { key: '인스타그램', label: '인스타그램 · 게시글', role: '관심·기억·공유를 만드는 콘텐츠', dot: '#C13584', limit: null },
 ]
 
 export function buildQuickDraft(profile, platformKey) {
@@ -1408,12 +1408,6 @@ const PLATFORM_CHAR_LIMITS = [
     status: '공식 도움말 확인',
     note: '업체가 제공하는 음식·서비스, 차별점, 운영 이력 등 업체 자체의 정보를 중심으로 작성하세요. URL·HTML은 넣을 수 없고, 가격·할인·이벤트 중심의 홍보 문구도 넣지 마세요. 이 기준은 "업체 설명"에만 적용하며, 다른 게시 기능에 일괄 적용하지 마세요.',
     source: { label: 'Google 비즈니스 프로필 수정 도움말', url: 'https://support.google.com/business/answer/3039617?hl=en' },
-  },
-  {
-    platform: '인스타그램', field: '게시물·릴스 캡션', limit: 2200, unit: '자',
-    status: 'Meta 공식 게시 API 문서 기준',
-    note: '실제 앱 작성 화면에서도 확인해주세요. 글자 수는 본문과 해시태그를 합친 최종 복사 텍스트 기준으로 계산해요.',
-    source: { label: 'Meta 공식 게시 API 문서', url: 'https://developers.facebook.com/documentation/instagram-platform/instagram-graph-api/reference/ig-user/media' },
   },
   {
     platform: '인스타그램', field: '해시태그', limit: 5, unit: '개',
